@@ -4,17 +4,13 @@
 - Node.js server (configured with https://neutrino.js.org/)
 - database
 
-# MacOS Setup:
+# Setup:
 
-`brew install node`
-
-`brew install yarn`
-
-`yarn install`
+`docker build -t boardgames-backend .`
 
 # Running server
 
-`yarn start`
+`docker run -p 4000:4000 boardgames-backend`
 
 Server is running on http://localhost:4000/graphql
 
