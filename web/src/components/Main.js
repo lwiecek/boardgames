@@ -1,10 +1,10 @@
 import React from 'react';
 
-import QueryContainer from './Query';
+import BoardGamesContainer from './BoardGames';
 
 const Main = () => (
   <div>
-    <QueryContainer />
+    <BoardGamesContainer />
   </div>
 );
 
