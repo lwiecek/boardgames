@@ -13,7 +13,7 @@ const getGraph = payload => (dispatch) => {
     const request = new XMLHttpRequest();
     request.open('POST', 'http://localhost:4000/graphql', true);
     request.setRequestHeader('Content-Type', 'application/json');
-    request.send(payload);
+    request.send(JSON.stringify(payload));
     request.onreadystatechange = () => {
       if (request.readyState === 4) {
         resolve(request.responseText);
