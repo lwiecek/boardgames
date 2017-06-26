@@ -55,7 +55,7 @@ const schema = buildSchema(`
     bgg_rating: String!
   }
   type Query {
-    boardgames(search: String): [BoardGame!]!
+    boardgames(search: String, ids: [Int!]): [BoardGame!]!
     publishers: [Publisher!]!
     designers: [Designer!]!
   }
@@ -98,7 +98,12 @@ const fakeBoardGames = [
 
 const root = {
   boardgames: args =>
-    fakeBoardGames.filter(elm => !args.search || elm.name.indexOf(args.search) !== -1),
+    fakeBoardGames.filter(
+      elm => (
+        (!args.search || elm.name.indexOf(args.search) !== -1) &&
+        (!args.ids || args.ids.indexOf(elm.id) !== -1)
+      ),
+    ),
   publishers: () => [fakeChessPublisher],
 };
 
