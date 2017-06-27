@@ -1,6 +1,8 @@
 import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import { buildSchema } from 'graphql';
+import pg from 'pg';
+import retry from 'retry';
 
 const schema = buildSchema(`
   type OpenRange {
@@ -141,3 +143,19 @@ app.use('/graphql', graphqlHTTP({
 }));
 app.listen(4000);
 console.log('Running a GraphQL API server at http://localhost:4000/graphql');
+
+console.log('Test Postgres connection:');
+const operation = retry.operation({ retries: 3 });
+operation.attempt(() => {
+  const client = new pg.Client();
+  client.connect((e) => {
+    console.log(e);
+    if (operation.retry(e)) {
+      return;
+    }
+    if (!e) {
+      client.end();
+      console.log('Hello Postgres!');
+    }
+  });
+});
