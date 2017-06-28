@@ -1,3 +1,5 @@
+// Only for GraphQL unit testing purposes
+
 const fakeChessPublisher = {
   id: 1,
   name: 'Chess publisher',
