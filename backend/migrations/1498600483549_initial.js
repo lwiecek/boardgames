@@ -29,7 +29,7 @@ exports.up = (pgm) => {
     popularity: {type: 'integer'},
     bgg_rating: {type: 'numeric'},
   });
-  pgm.createType('image_type', ['table', 'cover', 'box', 'photo'])
+  pgm.createType('image_type', ['table', 'cover', 'box', 'photo']);
   pgm.createTable('image', {
     id: 'id',
     uri: {type: 'text', notNull: true},
@@ -49,7 +49,7 @@ exports.down = (pgm) => {
     pgm.dropTable('designer');
     pgm.dropTable('video');
     pgm.dropTable('boardgame');
-      pgm.dropType('image_type');
+    pgm.dropType('image_type');
     pgm.dropTable('image');
     pgm.dropTable('instruction');
 };
