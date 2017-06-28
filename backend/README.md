@@ -6,13 +6,19 @@
 
 # Setup:
 
-`docker build -t boardgames-backend .`
+`docker-compose build`
 
 # Running server
 
-`docker run -p 4000:4000 boardgames-backend`
+`docker-compose up`
 
 Server is running on http://localhost:4000/graphql
+
+# Database migrations:
+`docker-compose run -e DATABASE_URL=postgres://boardgames:changeme@db/boardgames backend ./node_modules/.bin/pg-migrate up`
+
+# psql access
+docker-compose run -e PGPASSWORD=changeme db psql -h db -U boardgames boardgames
 
 # Example GraphQL query over HTTP
 

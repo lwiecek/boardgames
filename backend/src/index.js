@@ -12,13 +12,13 @@ const schema = buildSchema(`
   type Publisher {
     id: ID!
     name: String!
-    website_uri: String
+    website_uri: String!
     boardgames: [BoardGame!]!
   }
   type Designer {
     id: ID!
     name: String!
-    website_uri: String
+    website_uri: String!
     boardgames: [BoardGame!]!
   }
   type Image {
@@ -29,9 +29,9 @@ const schema = buildSchema(`
     id: ID!
     uri: String!
   }
-  type Instructions {
+  type Instruction {
     id: ID!
-    text_uri: String
+    text_uri: String!
     video: Video
     boardgame: BoardGame!
   }
@@ -45,7 +45,7 @@ const schema = buildSchema(`
     cover_image: Image
     box_image: Image
     photos: [Image!]!
-    instructions: Instructions
+    instruction: Instruction
     review_video: Video
     age_restriction: OpenRange!
     players_number: OpenRange!
