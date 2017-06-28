@@ -2,26 +2,20 @@
   "name": "board-games-backend",
   "version": "0.0.1",
   "license": "MIT",
-  "config": {
-    "presets": [
-      "neutrino-preset-airbnb-base",
-      "neutrino-preset-node"
-    ]
-  },
   "scripts": {
     "start": "neutrino start && node build/index.js",
     "build": "neutrino build",
     "test": "neutrino test"
   },
   "devDependencies": {
-    "neutrino": "^4.2.0",
-    "neutrino-preset-airbnb-base": "^4.3.1",
-    "neutrino-preset-node": "^4.2.0"
+    "neutrino": "^6.1.1",
+    "neutrino-preset-airbnb-base": "^6.1.1",
+    "neutrino-preset-node": "^6.1.1"
   },
   "dependencies": {
-    "express": "^4.14.1",
-    "express-graphql": "^0.6.3",
-    "graphql": "^0.9.1",
+    "express": "^4.15.3",
+    "express-graphql": "^0.6.6",
+    "graphql": "^0.10.3",
     "node-pg-migrate": "^2.3.0",
     "pg": "^6.4.0",
     "retry": "^0.10.1"
