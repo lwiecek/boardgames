@@ -1,4 +1,5 @@
 import pg from 'pg';
+import SQL from 'sql-template-strings';
 
 const config = {
   max: 10, // max number of clients in the pool
@@ -9,32 +10,37 @@ pool.on('error', err =>
   console.error('idle client error', err.message, err.stack),
 );
 
-const fragmentsValues = (fragments, values) => {
-  let idx = 0;
-  return (name, id) => {
-    if (id) {
-      idx += 1;
-      fragments.push(`${name}=$${idx}`);
-      values.push(id);
-    }
-  };
-};
-
-const boardgamesResolver = (publisherID, desginerID) => () => {
+const boardgamesResolver = (publisherID, designerID) => (args) => {
   const fragments = [];
-  const values = [];
-  const update = fragmentsValues(fragments, values);
-  update('publisher_id', publisherID);
-  update('designer_id', desginerID);
-  let query = 'SELECT * FROM boardgame';
-  if (values) {
-    query += ` WHERE ${fragments.join(' AND ')}`;
+  const query = SQL`SELECT * FROM boardgame`;
+  if (publisherID) {
+    fragments.push(SQL`publisher_id=${publisherID}`);
   }
-  return pool.query(query, values).then(result => result.rows);
+  if (designerID) {
+    fragments.push(SQL`designer_id=${publisherID}`);
+  }
+  if (args.search) {
+    const search = `%${args.search}%`;
+    fragments.push(SQL`name ILIKE ${search}`);
+  }
+  if (args.ids) {
+    fragments.push(SQL`id = ANY(${args.ids}::int[])`);
+  }
+
+  if (fragments) {
+    query.append(SQL` WHERE `);
+    fragments.forEach((val, idx) => {
+      if (idx > 0) {
+        query.append(SQL` AND `);
+      }
+      query.append(val);
+    });
+  }
+  return pool.query(query).then(result => result.rows);
 };
 
 const root = {
-  boardgames: () => [],
+  boardgames: boardgamesResolver(null, null),
   publishers: () => pool.query('SELECT id, name, website_uri FROM publisher').then((result) => {
     const publishers = [];
     for (let i = 0; i < result.rows.length; i += 1) {
