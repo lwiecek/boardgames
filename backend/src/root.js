@@ -27,7 +27,7 @@ const boardgamesResolver = (publisherID, designerID) => (args) => {
     fragments.push(SQL`id = ANY(${args.ids}::int[])`);
   }
 
-  if (fragments) {
+  if (fragments.length > 0) {
     query.append(SQL` WHERE `);
     fragments.forEach((val, idx) => {
       if (idx > 0) {
@@ -41,7 +41,7 @@ const boardgamesResolver = (publisherID, designerID) => (args) => {
 
 const root = {
   boardgames: boardgamesResolver(null, null),
-  publishers: () => pool.query('SELECT id, name, website_uri FROM publisher').then((result) => {
+  publishers: () => pool.query(SQL`SELECT id, name, website_uri FROM publisher`).then((result) => {
     const publishers = [];
     for (let i = 0; i < result.rows.length; i += 1) {
       const publisher = Object.assign({}, result.rows[i]);
