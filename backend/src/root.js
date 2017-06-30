@@ -81,11 +81,35 @@ function boardgamesResolver(publisherID, designerID) {
           boardgame.publisher = () => publishersResolver(boardgame.publisher_id)().then(
             publishers => publishers[0]);
         }
+        if (boardgame.designer_id) {
+          // TODO: ditto
+          boardgame.designer = () => designersResolver(boardgame.designer_id)().then(
+            designers => designers[0]);
+        }
         boardgames.push(boardgame);
       }
       return boardgames;
     });
   };
+}
+
+function designersResolver(designerID) {
+  const query = SQL`SELECT id, name, website_uri FROM designer`;
+  if (designerID) {
+    query.append(SQL` WHERE id=${designerID}`);
+  }
+  return () => pool.query(query).then((result) => {
+    const designers = [];
+    for (let i = 0; i < result.rows.length; i++) {
+      const designer = Object.assign({}, result.rows[i]);
+      // TODO: Below is causing N+1 queries.
+      // Optimize by passing all designer ids.
+      // Make the first resolve evalute it lazily.
+      designer.boardgames = boardgamesResolver(designer.id, null);
+      designers.push(designer);
+    }
+    return designers;
+  });
 }
 
 function publishersResolver(publisherID) {
@@ -95,11 +119,9 @@ function publishersResolver(publisherID) {
   }
   return () => pool.query(query).then((result) => {
     const publishers = [];
-    for (let i = 0; i < result.rows.length; i += 1) {
+    for (let i = 0; i < result.rows.length; i++) {
       const publisher = Object.assign({}, result.rows[i]);
-      // TODO: Below is causing N+1 queries.
-      // Optimize by passing all publisher ids.
-      // Make the first resolve evalute it lazily.
+      // TODO: See designersResolver
       publisher.boardgames = boardgamesResolver(publisher.id, null);
       publishers.push(publisher);
     }
@@ -110,6 +132,7 @@ function publishersResolver(publisherID) {
 const root = {
   boardgames: boardgamesResolver(null, null),
   publishers: publishersResolver(null),
+  designers: designersResolver(null),
 };
 
 export default root;
