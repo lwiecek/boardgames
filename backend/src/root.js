@@ -10,46 +10,76 @@ pool.on('error', err =>
   console.error('idle client error', err.message, err.stack),
 );
 
-const boardgamesResolver = (publisherID, designerID) => (args) => {
-  const fragments = [];
-  const query = SQL`SELECT * FROM boardgame`;
-  if (publisherID) {
-    fragments.push(SQL`publisher_id=${publisherID}`);
-  }
-  if (designerID) {
-    fragments.push(SQL`designer_id=${publisherID}`);
-  }
-  if (args.search) {
-    const search = `%${args.search}%`;
-    fragments.push(SQL`name ILIKE ${search}`);
-  }
-  if (args.ids) {
-    fragments.push(SQL`id = ANY(${args.ids}::int[])`);
-  }
+function boardgamesResolver(publisherID, designerID) {
+  return (args) => {
+    const fragments = [];
+    const query = SQL`SELECT * FROM boardgame`;
+    if (publisherID) {
+      fragments.push(SQL`publisher_id=${publisherID}`);
+    }
+    if (designerID) {
+      fragments.push(SQL`designer_id=${publisherID}`);
+    }
+    if (args.search) {
+      const search = `%${args.search}%`;
+      fragments.push(SQL`name ILIKE ${search}`);
+    }
+    if (args.ids) {
+      fragments.push(SQL`id = ANY(${args.ids}::int[])`);
+    }
 
-  if (fragments.length > 0) {
-    query.append(SQL` WHERE `);
-    fragments.forEach((val, idx) => {
-      if (idx > 0) {
-        query.append(SQL` AND `);
+    if (fragments.length > 0) {
+      query.append(SQL` WHERE `);
+      fragments.forEach((val, idx) => {
+        if (idx > 0) {
+          query.append(SQL` AND `);
+        }
+        query.append(val);
+      });
+    }
+    return pool.query(query).then((result) => {
+      const boardgames = [];
+      for (let i = 0; i < result.rows.length; i += 1) {
+        const boardgame = Object.assign({}, result.rows[i]);
+        boardgame.photos = [];
+        if (boardgame.publisher_id) {
+          // TODO: Below is causing N+1 queries.
+          // Optimize by passing all board game ids.
+          // Make the first resolve evalute it lazily.
+          boardgame.publisher = publishersResolver(boardgame.publisher_id);
+        }
+        boardgames.push(boardgame);
       }
-      query.append(val);
+      return boardgames;
     });
-  }
-  return pool.query(query).then(result => result.rows);
-};
+  };
+}
 
-const root = {
-  boardgames: boardgamesResolver(null, null),
-  publishers: () => pool.query(SQL`SELECT id, name, website_uri FROM publisher`).then((result) => {
+function publishersResolver(publisherID) {
+  const query = SQL`SELECT id, name, website_uri FROM publisher`;
+  if (publisherID) {
+    query.append(SQL` WHERE id=${publisherID}`);
+  }
+  return () => pool.query(query).then((result) => {
     const publishers = [];
     for (let i = 0; i < result.rows.length; i += 1) {
       const publisher = Object.assign({}, result.rows[i]);
+      // TODO: Below is causing N+1 queries.
+      // Optimize by passing all publisher ids.
+      // Make the first resolve evalute it lazily.
       publisher.boardgames = boardgamesResolver(publisher.id, null);
       publishers.push(publisher);
     }
+    if (publisherID) {
+      return publishers[0];
+    }
     return publishers;
-  }),
+  });
+}
+
+const root = {
+  boardgames: boardgamesResolver(null, null),
+  publishers: publishersResolver(null),
 };
 
 export default root;
