@@ -42,7 +42,7 @@ function boardgamesResolver(publisherID, designerID) {
       fragments.push(SQL`publisher_id=${publisherID}`);
     }
     if (designerID) {
-      fragments.push(SQL`designer_id=${publisherID}`);
+      fragments.push(SQL`designer_id=${designerID}`);
     }
     if (args.search) {
       const search = `%${args.search}%`;
@@ -105,7 +105,7 @@ function designersResolver(designerID) {
       // TODO: Below is causing N+1 queries.
       // Optimize by passing all designer ids.
       // Make the first resolve evalute it lazily.
-      designer.boardgames = boardgamesResolver(designer.id, null);
+      designer.boardgames = boardgamesResolver(null, designer.id);
       designers.push(designer);
     }
     return designers;
