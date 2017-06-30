@@ -46,7 +46,8 @@ function boardgamesResolver(publisherID, designerID) {
           // TODO: Below is causing N+1 queries.
           // Optimize by passing all board game ids.
           // Make the first resolve evalute it lazily.
-          boardgame.publisher = publishersResolver(boardgame.publisher_id);
+          boardgame.publisher = () => publishersResolver(boardgame.publisher_id)().then(
+            publishers => publishers[0]);
         }
         boardgames.push(boardgame);
       }
@@ -69,9 +70,6 @@ function publishersResolver(publisherID) {
       // Make the first resolve evalute it lazily.
       publisher.boardgames = boardgamesResolver(publisher.id, null);
       publishers.push(publisher);
-    }
-    if (publisherID) {
-      return publishers[0];
     }
     return publishers;
   });
