@@ -10,6 +10,13 @@ pool.on('error', err =>
   console.error('idle client error', err.message, err.stack),
 );
 
+function imagesResolver(boardgameID, type) {
+  return () => {
+    const query = SQL`SELECT id, uri FROM image WHERE boardgame_id=${boardgameID} AND type=${type}`;
+    return pool.query(query).then(result => result.rows);
+  };
+}
+
 function boardgamesResolver(publisherID, designerID) {
   return (args) => {
     const fragments = [];
@@ -41,7 +48,7 @@ function boardgamesResolver(publisherID, designerID) {
       const boardgames = [];
       for (let i = 0; i < result.rows.length; i += 1) {
         const boardgame = Object.assign({}, result.rows[i]);
-        boardgame.photos = [];
+        boardgame.photos = imagesResolver(boardgame.id, 'photo');
         if (boardgame.publisher_id) {
           // TODO: Below is causing N+1 queries.
           // Optimize by passing all board game ids.
