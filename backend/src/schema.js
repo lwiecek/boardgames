@@ -1,7 +1,7 @@
 import { buildSchema } from 'graphql';
 
 const schema = buildSchema(`
-  type OpenRange {
+  type IntRange {
     from: Int
     to: Int
   }
@@ -43,8 +43,9 @@ const schema = buildSchema(`
     photos: [Image!]!
     instruction: Instruction
     review_video: Video
-    age_restriction: OpenRange!
-    players_number: OpenRange!
+    age_restriction: IntRange!
+    players_number: IntRange!
+    playing_time: IntRange!
     publisher: Publisher
     designer: Designer
     difficulty: Int

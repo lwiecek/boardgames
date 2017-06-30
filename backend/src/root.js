@@ -28,6 +28,12 @@ class Images {
   }
 }
 
+function parseIntRange(rangeString) {
+  // slice to remove brackets
+  const array = rangeString.slice(1, rangeString.length - 1).split(',');
+  return { from: array[0] || null, to: array[1] || null };
+}
+
 function boardgamesResolver(publisherID, designerID) {
   return (args) => {
     const fragments = [];
@@ -64,6 +70,9 @@ function boardgamesResolver(publisherID, designerID) {
         boardgame.cover_image = images.getByType('cover').then(imgs => imgs[0]);
         boardgame.box_image = images.getByType('box').then(imgs => imgs[0]);
         boardgame.table_image = images.getByType('table').then(imgs => imgs[0]);
+        boardgame.age_restriction = parseIntRange(boardgame.age_restriction);
+        boardgame.players_number = parseIntRange(boardgame.players_number);
+        boardgame.playing_time = parseIntRange(boardgame.playing_time);
         if (boardgame.publisher_id) {
           // TODO: Below is causing N+1 queries.
           // Optimize by passing all board game ids.

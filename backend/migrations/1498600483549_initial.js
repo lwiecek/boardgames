@@ -20,8 +20,9 @@ exports.up = (pgm) => {
     subtitle: {type: 'text', notNull: true},
     description: {type: 'text', notNull: true},
     review_video_id: {type: 'integer', references: 'video'},
-    age_restriction: {type: 'int4range'},
-    players_number: {type: 'int4range'},
+    age_restriction: {type: 'int4range', notNull: true},
+    players_number: {type: 'int4range', notNull: true},
+    playing_time: {type: 'int4range', notNull: true},
     publisher_id: {type: 'integer', references: 'publisher'},
     designer_id: {type: 'integer', references: 'designer'},
     difficulty: {type: 'integer'},
@@ -45,11 +46,11 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-    pgm.dropTable('publisher');
-    pgm.dropTable('designer');
-    pgm.dropTable('video');
-    pgm.dropTable('boardgame');
-    pgm.dropType('image_type');
-    pgm.dropTable('image');
-    pgm.dropTable('instruction');
+  pgm.dropTable('instruction');
+  pgm.dropTable('image');
+  pgm.dropTable('boardgame');
+  pgm.dropTable('video');
+  pgm.dropTable('publisher');
+  pgm.dropTable('designer');
+  pgm.dropType('image_type');
 };
