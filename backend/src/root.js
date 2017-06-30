@@ -73,6 +73,7 @@ function boardgamesResolver(publisherID, designerID) {
         boardgame.age_restriction = parseIntRange(boardgame.age_restriction);
         boardgame.players_number = parseIntRange(boardgame.players_number);
         boardgame.playing_time = parseIntRange(boardgame.playing_time);
+        boardgame.bgg_rating = boardgame.bgg_rating || '';
         if (boardgame.publisher_id) {
           // TODO: Below is causing N+1 queries.
           // Optimize by passing all board game ids.
