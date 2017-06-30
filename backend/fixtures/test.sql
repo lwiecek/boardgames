@@ -6,3 +6,8 @@ INSERT INTO image(uri, type, boardgame_id) VALUES (
     'photo',
     (SELECT id FROM boardgame where name = 'Tak')
 );
+INSERT INTO image(uri, type, boardgame_id) VALUES (
+    'https://images.pexels.com/photos/209640/pexels-photo-209640.jpeg',
+    'cover',
+    (SELECT id FROM boardgame where name = 'Tak')
+);

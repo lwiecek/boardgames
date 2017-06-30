@@ -10,11 +10,22 @@ pool.on('error', err =>
   console.error('idle client error', err.message, err.stack),
 );
 
-function imagesResolver(boardgameID, type) {
-  return () => {
-    const query = SQL`SELECT id, uri FROM image WHERE boardgame_id=${boardgameID} AND type=${type}`;
-    return pool.query(query).then(result => result.rows);
-  };
+
+class Images {
+  constructor(boardgameID) {
+    this.boardgameID = boardgameID;
+  }
+  get() {
+    if (this.result) {
+      return this.result;
+    }
+    const query = SQL`SELECT id, uri, type FROM image WHERE boardgame_id=${this.boardgameID}`;
+    this.result = pool.query(query).then(result => result.rows);
+    return this.result;
+  }
+  getByType(type) {
+    return this.get().then(imgs => imgs.filter(img => img.type === type));
+  }
 }
 
 function boardgamesResolver(publisherID, designerID) {
@@ -48,7 +59,11 @@ function boardgamesResolver(publisherID, designerID) {
       const boardgames = [];
       for (let i = 0; i < result.rows.length; i += 1) {
         const boardgame = Object.assign({}, result.rows[i]);
-        boardgame.photos = imagesResolver(boardgame.id, 'photo');
+        const images = new Images(boardgame.id);
+        boardgame.photos = images.getByType('photo');
+        boardgame.cover_image = images.getByType('cover').then(imgs => imgs[0]);
+        boardgame.box_image = images.getByType('box').then(imgs => imgs[0]);
+        boardgame.table_image = images.getByType('table').then(imgs => imgs[0]);
         if (boardgame.publisher_id) {
           // TODO: Below is causing N+1 queries.
           // Optimize by passing all board game ids.
