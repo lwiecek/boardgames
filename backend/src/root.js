@@ -52,6 +52,11 @@ function getInstructions(boardgameID) {
   });
 }
 
+function getVideo(videoID) {
+  const query = SQL`SELECT id, uri FROM video WHERE id=${videoID}`;
+  return pool.query(query).then(result => result.rows[0]);
+}
+
 function boardgamesResolver(publisherID, designerID) {
   return (args) => {
     const fragments = [];
@@ -93,6 +98,9 @@ function boardgamesResolver(publisherID, designerID) {
         boardgame.playing_time = parseIntRange(boardgame.playing_time);
         boardgame.bgg_rating = boardgame.bgg_rating || '';
         boardgame.instructions = () => getInstructions(boardgame.id);
+        if (boardgame.review_video_id) {
+          boardgame.review_video = () => getVideo(boardgame.review_video_id);
+        }
         if (boardgame.publisher_id) {
           // TODO: Below is causing N+1 queries.
           // Optimize by passing all board game ids.
