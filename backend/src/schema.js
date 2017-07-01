@@ -41,7 +41,7 @@ const schema = buildSchema(`
     cover_image: Image
     box_image: Image
     photos: [Image!]!
-    instruction: Instruction
+    instructions: [Instruction!]!
     review_video: Video
     age_restriction: IntRange!
     players_number: IntRange!

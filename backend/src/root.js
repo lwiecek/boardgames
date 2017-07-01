@@ -34,6 +34,24 @@ function parseIntRange(rangeString) {
   return { from: array[0] || null, to: array[1] || null };
 }
 
+function getInstructions(boardgameID) {
+  const query = SQL`
+    SELECT i.id, i.text_uri, v.id video_id, v.uri video_uri FROM instruction i
+    LEFT OUTER JOIN video v ON (i.video_id = v.id)
+    WHERE i.boardgame_id=${boardgameID}`;
+  return pool.query(query).then((result) => {
+    const instructions = [];
+    for (let i = 0; i < result.rows.length; i++) {
+      const instruction = Object.assign({}, result.rows[i]);
+      if (instruction.video_id) {
+        instruction.video = { id: instruction.video_id, uri: instruction.video_uri };
+      }
+      instructions.push(instruction);
+    }
+    return instructions;
+  });
+}
+
 function boardgamesResolver(publisherID, designerID) {
   return (args) => {
     const fragments = [];
@@ -63,7 +81,7 @@ function boardgamesResolver(publisherID, designerID) {
     }
     return pool.query(query).then((result) => {
       const boardgames = [];
-      for (let i = 0; i < result.rows.length; i += 1) {
+      for (let i = 0; i < result.rows.length; i++) {
         const boardgame = Object.assign({}, result.rows[i]);
         const images = new Images(boardgame.id);
         boardgame.photos = images.getByType('photo');
@@ -74,6 +92,7 @@ function boardgamesResolver(publisherID, designerID) {
         boardgame.players_number = parseIntRange(boardgame.players_number);
         boardgame.playing_time = parseIntRange(boardgame.playing_time);
         boardgame.bgg_rating = boardgame.bgg_rating || '';
+        boardgame.instructions = () => getInstructions(boardgame.id);
         if (boardgame.publisher_id) {
           // TODO: Below is causing N+1 queries.
           // Optimize by passing all board game ids.

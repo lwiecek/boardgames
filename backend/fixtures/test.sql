@@ -29,3 +29,14 @@ INSERT INTO image(uri, type, boardgame_id) VALUES (
   'cover',
   (SELECT id FROM boardgame where name = 'Tak')
 );
+INSERT INTO video(uri) VALUES ('http://example.com/review-video');
+INSERT INTO video(uri) VALUES ('http://example.com/instructions-video');
+INSERT INTO instruction(text_uri, video_id, boardgame_id) VALUES (
+  'http://example.com/text-instructions',
+  (SELECT id FROM video WHERE uri='http://example.com/instructions-video'),
+  (SELECT id FROM boardgame WHERE name='Tak')
+);
+INSERT INTO instruction(text_uri, boardgame_id) VALUES (
+  'http://example.com/text-instructions-different-language-no-video',
+  (SELECT id FROM boardgame WHERE name='Tak')
+);
