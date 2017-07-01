@@ -60,7 +60,12 @@ function getVideo(videoID) {
 function boardgamesResolver(publisherID, designerID) {
   return (args) => {
     const fragments = [];
-    const query = SQL`SELECT * FROM boardgame`;
+    const query = SQL`
+      SELECT
+        id, name, slug, subtitle, description, review_video_id, age_restriction,
+        players_number, playing_time, publisher_id, designer_id, difficulty, randomness,
+        popularity, bgg_rating
+      FROM boardgame`;
     if (publisherID) {
       fragments.push(SQL`publisher_id=${publisherID}`);
     }
