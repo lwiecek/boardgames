@@ -21,7 +21,7 @@ Server is running on http://localhost:4000/graphql
 `docker-compose run backend yarn test`
 
 ## Database migrations
-`docker-compose run backend yarn db_migrate`
+`docker-compose run backend yarn db/migrate`
 
 ## psql access
 `docker-compose run -e PGPASSWORD=changeme db psql -h db -U boardgames boardgames`

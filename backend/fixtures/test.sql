@@ -1,3 +1,5 @@
+BEGIN;
+
 INSERT INTO publisher(name, website_uri) VALUES ('Cheapass Games', 'http://cheapass.com/');
 INSERT INTO video(uri) VALUES ('http://example.com/review-video');
 INSERT INTO boardgame(
@@ -42,3 +44,5 @@ INSERT INTO instruction(text_uri, boardgame_id) VALUES (
   'http://example.com/text-instructions-different-language-no-video',
   (SELECT id FROM boardgame WHERE name='Tak')
 );
+
+COMMIT;

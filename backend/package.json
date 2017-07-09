@@ -5,9 +5,10 @@
   "scripts": {
     "start": "neutrino start && node build/index.js",
     "build": "neutrino build",
-    "db_migrate": "node scripts/db/migrate.js",
-    "db_recreate": "node scripts/db/recreate.js",
-    "test": "NODE_ENV=test yarn db_recreate && NODE_ENV=test yarn db_migrate && neutrino test"
+    "db/migrate": "node scripts/db/migrate.js",
+    "db/recreate": "node scripts/db/recreate.js",
+    "db/load_fixtures": "node scripts/db/load_fixtures.js",
+    "test": "NODE_ENV=test yarn db/recreate && NODE_ENV=test yarn db/migrate && NODE_ENV=test yarn db/load_fixtures && neutrino test"
   },
   "devDependencies": {
     "neutrino": "^6.1.1",

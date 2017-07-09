@@ -28,11 +28,10 @@ client.connect(function (err) {
         console.log('FAILURE');
         throw err;
       }
+      console.log('SUCCESS');
     });
   }, (err) => {
     console.log('FAILURE');
     throw err;
   });
 });
-
-
