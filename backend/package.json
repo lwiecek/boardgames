@@ -24,6 +24,7 @@
     "node-pg-migrate": "^2.3.0",
     "pg": "^6.4.0",
     "retry": "^0.10.1",
-    "sql-template-strings": "^2.2.2"
+    "sql-template-strings": "^2.2.2",
+    "supertest": "^3.0.0"
   }
 }

@@ -26,7 +26,6 @@ fs.readFile('fixtures/test.sql', (err, data) => {
       throw err;
     }
     console.log(`loading fixtures in ${dbName}`);
-    const fixtures =
     client.query(data.toString()).then(() => {
       client.end(function (err) {
         if (err) {

@@ -40,5 +40,5 @@ app.use(endpoint, graphqlHTTP({
   rootValue: root,
   graphiql: true,
 }));
-app.listen(port);
+export default app.listen(port);
 console.log(`Running a GraphQL API server at http://localhost:${port}${endpoint}`);
