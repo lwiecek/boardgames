@@ -5,9 +5,9 @@
   "scripts": {
     "start": "neutrino start && node build/index.js",
     "build": "neutrino build",
-    "migratedb": "node scripts/migratedb.js",
-    "recreatedb": "node scripts/recreatedb.js",
-    "test": "NODE_ENV=test yarn recreatedb && NODE_ENV=test yarn migratedb && neutrino test"
+    "db_migrate": "node scripts/db/migrate.js",
+    "db_recreate": "node scripts/db/recreate.js",
+    "test": "NODE_ENV=test yarn db_recreate && NODE_ENV=test yarn db_migrate && neutrino test"
   },
   "devDependencies": {
     "neutrino": "^6.1.1",
