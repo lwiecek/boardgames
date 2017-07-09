@@ -17,8 +17,11 @@ Backend code. Work in progress, domain not configured yet.
 
 Server is running on http://localhost:4000/graphql
 
+## Running tests
+`docker-compose run backend yarn test`
+
 ## Database migrations
-`docker-compose run -e DATABASE_URL=postgres://boardgames:changeme@db/boardgames backend ./node_modules/.bin/pg-migrate up`
+`docker-compose run backend yarn migratedb`
 
 ## psql access
 `docker-compose run -e PGPASSWORD=changeme db psql -h db -U boardgames boardgames`

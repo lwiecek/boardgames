@@ -1,8 +1,10 @@
 import express from 'express';
 import graphqlHTTP from 'express-graphql';
+import config from 'config';
 
 import schema from './schema';
 import root from './root';
+
 
 const app = express();
 app.use((req, res, next) => {
@@ -31,11 +33,12 @@ app.use((req, res, next) => {
     next();
   }
 });
-app.use('/graphql', graphqlHTTP({
+const endpoint = config.get('graphql.endpoint');
+const port = config.get('graphql.port');
+app.use(endpoint, graphqlHTTP({
   schema,
   rootValue: root,
   graphiql: true,
 }));
-app.listen(4000);
-// console.log('Running a GraphQL API server at http://localhost:4000/graphql');
-
+app.listen(port);
+console.log(`Running a GraphQL API server at http://localhost:${port}${endpoint}`);

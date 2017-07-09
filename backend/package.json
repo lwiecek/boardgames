@@ -5,14 +5,18 @@
   "scripts": {
     "start": "neutrino start && node build/index.js",
     "build": "neutrino build",
-    "test": "neutrino test"
+    "migratedb": "node scripts/migratedb.js",
+    "recreatedb": "node scripts/recreatedb.js",
+    "test": "NODE_ENV=test yarn recreatedb && NODE_ENV=test yarn migratedb && neutrino test"
   },
   "devDependencies": {
     "neutrino": "^6.1.1",
     "neutrino-preset-airbnb-base": "^6.1.1",
+    "neutrino-preset-jest": "^6.1.4",
     "neutrino-preset-node": "^6.1.1"
   },
   "dependencies": {
+    "config": "^1.26.1",
     "express": "^4.15.3",
     "express-graphql": "^0.6.6",
     "graphql": "^0.10.3",

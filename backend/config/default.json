@@ -1,0 +1,12 @@
+{
+    "graphql": {
+        "endpoint": "/graphql",
+        "port": 4000
+    },
+    "database": {
+        "host": "db",
+        "username": "boardgames",
+        "password": "changeme",
+        "name": "boardgames"
+    }
+}
