@@ -4,7 +4,10 @@
 const config = require('config');
 const pg = require('pg');
 
-const client = new pg.Client();
+const client = new pg.Client({
+  // use this database for connection purposes, boardgames may be missing
+  database: 'postgres'
+});
 const dbName = config.get('database.name');
 
 client.connect(function (err) {
