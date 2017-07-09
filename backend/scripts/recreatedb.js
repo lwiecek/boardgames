@@ -5,40 +5,34 @@ const config = require('config');
 const pg = require('pg');
 
 const client = new pg.Client();
-
 const dbName = config.get('database.name');
+
 client.connect(function (err) {
-  if (err) throw err;
-  console.log(`dropping database ${dbName}`)
-  client.query(`DROP DATABASE IF EXISTS ${dbName}`, function (err, result) {
-    if (err) throw err;
-    console.log(`creating database ${dbName}`)
-    client.query(`CREATE DATABASE ${dbName}`, function (err, result) {
-      if (err) throw err;
-      client.end(function (err) {
-        if (err) throw err;
-      });
+  if (err) {
+    console.log('FAILURE');
+    throw err;
+  }
+  // Remove all connections to the test database - required before DROP
+  client.query(
+    `SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname=$1`,
+    [dbName],
+  ).then(() => {
+    console.log(`dropping database ${dbName}`);
+    return client.query(`DROP DATABASE IF EXISTS ${dbName}`)
+  }).then(() => {
+    console.log(`creating database ${dbName}`);
+    return client.query(`CREATE DATABASE ${dbName}`);
+  }).then(() => {
+    client.end(function (err) {
+      if (err) {
+        console.log('FAILURE');
+        throw err;
+      }
     });
+  }, (err) => {
+    console.log('FAILURE');
+    throw err;
   });
 });
 
-// const spawn = require('child_process').spawnSync;
-
-// const dbUsername = config.get('database.username');
-// const dbPassword = config.get('database.password');
-// const dbHost = config.get('database.host');
-// const dbName = config.get('database.name');
-
-// let env = Object.create(process.env);
-// env['PGPASSWORD'] = dbPassword;
-
-// console.log(`dropping database ${dbName}`);
-// const dropDB = spawn('dropdb', ['-h', dbHost, '-U', dbUsername, '--if-exists'], {env: env});
-// console.log(`stderr: ${dropDB.stderr.toString()}`);
-// console.log(`stdout: ${dropDB.stdout.toString()}`);
-
-// console.log(`creating database ${dbName}`);
-// const createDB = spawn('createdb', [dbName, '-h', dbHost, '-U', dbUsername], {env: env});
-// console.log(`stderr: ${createDB.stderr.toString()}`);
-// console.log(`stdout: ${createDB.stdout.toString()}`);
 
