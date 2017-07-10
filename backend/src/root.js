@@ -31,8 +31,16 @@ class Images {
 }
 
 function parseIntRange(rangeString) {
+  // There are four ways range can be returned from Postgres [a,b], (a,b), (a,b], [a,b)
+  // However, this function always returns inclusive range [a,b]
   // slice to remove brackets
   const array = rangeString.slice(1, rangeString.length - 1).split(',');
+  if (array[0] && rangeString[0] === '(') {
+    array[0]++;
+  }
+  if (array[1] && rangeString[rangeString.length - 1] === ')') {
+    array[1]--;
+  }
   return { from: array[0] || null, to: array[1] || null };
 }
 
