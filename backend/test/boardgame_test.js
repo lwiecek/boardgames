@@ -86,4 +86,58 @@ describe('boardgame', () => {
       }
     }).expect('Content-Type', 'application/json; charset=utf-8');
   });
+
+  test('media fields work', () => {
+    return request(app).post('/graphql').send(
+      {
+        query: `{
+          boardgames {
+            table_image { id uri }
+            cover_image { id uri }
+            box_image { id uri }
+            instructions { id text_uri video { uri } }
+            review_video { id uri }
+            photos { id uri }
+          }
+        }`
+      }
+    ).expect(200, {
+      'data': {
+        'boardgames': [
+          {
+            'table_image': null,
+            'cover_image': {
+              'id': '2',
+              'uri': 'http://example.com/cover-image.jpg'
+            },
+            'box_image': null,
+            'instructions': [
+              {
+                'id': '1',
+                'text_uri': 'http://example.com/text-instructions.pdf',
+                'video': {
+                  'uri': 'http://example.com/instructions-video.mp4'
+                }
+              },
+              {
+                'id': '2',
+                'text_uri': 'http://example.com/text-instructions-different-language-no-video.pdf',
+                'video': null
+              }
+            ],
+            'review_video': {
+              'id': '1',
+              'uri': 'http://example.com/review-video.mp4'
+            },
+            'photos': [
+              {
+                'id': '1',
+                'uri': 'http://example.com/tak-photo.jpg'
+              }
+            ]
+          }
+        ]
+      }
+    }).expect('Content-Type', 'application/json; charset=utf-8');
+  });
 });

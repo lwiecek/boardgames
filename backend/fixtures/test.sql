@@ -1,7 +1,7 @@
 BEGIN;
 
 INSERT INTO publisher(name, website_uri) VALUES ('Cheapass Games', 'http://cheapass.com/');
-INSERT INTO video(uri) VALUES ('http://example.com/review-video');
+INSERT INTO video(uri) VALUES ('http://example.com/review-video.mp4');
 INSERT INTO boardgame(
   name,
   slug,
@@ -21,27 +21,27 @@ INSERT INTO boardgame(
   '[2,2]',
   '[10,]',
   (SELECT id FROM publisher WHERE name = 'Cheapass Games'),
-  (SELECT id FROM video WHERE uri = 'http://example.com/review-video')
+  (SELECT id FROM video WHERE uri = 'http://example.com/review-video.mp4')
 );
 
 INSERT INTO image(uri, type, boardgame_id) VALUES (
-  'https://www.boardgameprices.com/articleimage?p=uploads/2015/07/Bgg-Con.jpg',
+  'http://example.com/tak-photo.jpg',
   'photo',
   (SELECT id FROM boardgame WHERE name = 'Tak')
 );
 INSERT INTO image(uri, type, boardgame_id) VALUES (
-  'https://images.pexels.com/photos/209640/pexels-photo-209640.jpeg',
+  'http://example.com/cover-image.jpg',
   'cover',
   (SELECT id FROM boardgame WHERE name = 'Tak')
 );
-INSERT INTO video(uri) VALUES ('http://example.com/instructions-video');
+INSERT INTO video(uri) VALUES ('http://example.com/instructions-video.mp4');
 INSERT INTO instruction(text_uri, video_id, boardgame_id) VALUES (
-  'http://example.com/text-instructions',
-  (SELECT id FROM video WHERE uri='http://example.com/instructions-video'),
+  'http://example.com/text-instructions.pdf',
+  (SELECT id FROM video WHERE uri='http://example.com/instructions-video.mp4'),
   (SELECT id FROM boardgame WHERE name='Tak')
 );
 INSERT INTO instruction(text_uri, boardgame_id) VALUES (
-  'http://example.com/text-instructions-different-language-no-video',
+  'http://example.com/text-instructions-different-language-no-video.pdf',
   (SELECT id FROM boardgame WHERE name='Tak')
 );
 
