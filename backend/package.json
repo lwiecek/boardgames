@@ -8,6 +8,7 @@
     "db/migrate": "node scripts/db/migrate.js",
     "db/recreate": "node scripts/db/recreate.js",
     "db/load_fixtures": "node scripts/db/load_fixtures.js",
+    "external_api/boardgamegeek": "node scripts/external_api/boardgamegeek.js",
     "test": "NODE_ENV=test yarn db/recreate && NODE_ENV=test yarn db/migrate && NODE_ENV=test yarn db/load_fixtures && neutrino test"
   },
   "devDependencies": {
@@ -25,6 +26,7 @@
     "pg": "^6.4.0",
     "retry": "^0.10.1",
     "sql-template-strings": "^2.2.2",
-    "supertest": "^3.0.0"
+    "supertest": "^3.0.0",
+    "yargs": "^8.0.2"
   }
 }
