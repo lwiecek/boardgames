@@ -3,6 +3,7 @@
 
 const config = require('config');
 const request = require('request');
+const xml2js = require('xml2js');
 const argv = require('yargs')
   .demandCommand(1)
   .usage('Usage: $0 <command>')
@@ -15,11 +16,30 @@ const argv = require('yargs')
   .argv;
 
 const command = argv._[0];
+
+function createOrUpdateBoardGame(id) {
+  request(`https://www.boardgamegeek.com/xmlapi2/thing?type=boardgame&id=${id}`, (err, response, body) => {
+    if (err) {
+      throw err;
+    }
+    xml2js.parseString(body, function (err, result) {
+      console.dir(result.items.item);
+    });
+  });
+}
+
 if (command === 'sample_boardgames') {
-  request('https://www.boardgamegeek.com/xmlapi2/geeklist/1', function (error, response, body) {
-    console.log('error:', error); // Print the error if one occurred
-    console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-    console.log('body:', body); // Print the HTML for the Google homepage.
+  request('https://www.boardgamegeek.com/xmlapi2/geeklist/1', (err, response, body) => {
+    if (err) {
+      throw err;
+    }
+    xml2js.parseString(body, function (err, result) {
+      for (let item of result.geeklist.item) {
+        if (item['$'].subtype === 'boardgame') {
+          createOrUpdateBoardGame(item['$'].objectid)
+        }
+      }
+    });
   });
 } else if (command === 'load_boardgames') {
 
