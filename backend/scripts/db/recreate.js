@@ -4,6 +4,11 @@
 const config = require('config');
 const pg = require('pg');
 
+if (process.env.NODE_ENV !== 'test') {
+  console.log('database recreation is only allowed in test environment');
+  process.exit(1);
+}
+
 const client = new pg.Client({
   // use this database for connection purposes, boardgames may be missing
   database: 'postgres'
