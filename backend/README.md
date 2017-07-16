@@ -9,6 +9,10 @@ Backend code. Work in progress, domain not configured yet.
 
 ## Setup
 
+`docker-compose up`
+
+## Update the code
+
 `docker-compose build`
 
 ## Running server
