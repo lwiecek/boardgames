@@ -45,6 +45,6 @@ app.use(endpoint, graphqlHTTP({
 // !module.parent ensures only one server is created.
 if (!module.parent) {
   app.listen(port);
+  console.log(`Running a GraphQL API server at http://localhost:${port}${endpoint}`);
 }
 export default app;
-console.log(`Running a GraphQL API server at http://localhost:${port}${endpoint}`);
