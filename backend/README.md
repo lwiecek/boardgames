@@ -23,6 +23,9 @@ Server is running on http://localhost:4000/graphql
 ## Database migrations
 `docker-compose run backend yarn db/migrate`
 
+## Load initial data from BoardGameGeek
+`docker-compose run backend yarn external_api/boardgamegeek load_boardgames`
+
 ## psql access
 `docker-compose run -e PGPASSWORD=changeme db psql -h db -U boardgames boardgames`
 
