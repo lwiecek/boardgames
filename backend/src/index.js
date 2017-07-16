@@ -40,5 +40,11 @@ app.use(endpoint, graphqlHTTP({
   rootValue: root,
   graphiql: true,
 }));
-export default app.listen(port);
+
+// This check and export are required for running tests using supertest.
+// !module.parent ensures only one server is created.
+if (!module.parent) {
+  app.listen(port);
+}
+export default app;
 console.log(`Running a GraphQL API server at http://localhost:${port}${endpoint}`);
