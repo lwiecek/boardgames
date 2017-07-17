@@ -8,5 +8,8 @@
         "username": "boardgames",
         "password": "changeme",
         "name": "boardgames"
+    },
+    "boardgamegeek": {
+        "api_url": "https://www.boardgamegeek.com/xmlapi2"
     }
 }

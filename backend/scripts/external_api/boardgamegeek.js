@@ -18,7 +18,7 @@ const argv = require('yargs')
 const command = argv._[0];
 
 function createOrUpdateBoardGame(id) {
-  request(`https://www.boardgamegeek.com/xmlapi2/thing?type=boardgame&id=${id}`, (err, response, body) => {
+  request(`${config.get('boardgamegeek.api_url')}/thing?type=boardgame&id=${id}`, (err, response, body) => {
     if (err) {
       throw err;
     }
@@ -29,7 +29,8 @@ function createOrUpdateBoardGame(id) {
 }
 
 if (command === 'sample_boardgames') {
-  request('https://www.boardgamegeek.com/xmlapi2/geeklist/1', (err, response, body) => {
+  const sampleGeeklistID = 1;
+  request(`${config.get('boardgamegeek.api_url')}/geeklist/${sampleGeeklistID}`, (err, response, body) => {
     if (err) {
       throw err;
     }
