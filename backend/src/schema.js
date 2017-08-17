@@ -52,6 +52,7 @@ const schema = buildSchema(`
     randomness: Int
     popularity: Int
     year_published: Int
+    bgg_id: String!
     bgg_rating: String!
   }
   type Query {

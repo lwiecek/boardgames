@@ -74,7 +74,7 @@ function boardgamesResolver(publisherID, designerID) {
       SELECT
         id, name, slug, subtitle, description, review_video_id, age_restriction,
         players_number, playing_time, publisher_id, designer_id, difficulty, randomness,
-        popularity, bgg_rating, year_published
+        popularity, bgg_rating, bgg_id, year_published
       FROM boardgame`;
     if (publisherID) {
       fragments.push(SQL`publisher_id=${publisherID}`);
@@ -112,6 +112,7 @@ function boardgamesResolver(publisherID, designerID) {
         boardgame.players_number = parseIntRange(boardgame.players_number);
         boardgame.playing_time = parseIntRange(boardgame.playing_time);
         boardgame.bgg_rating = boardgame.bgg_rating || '';
+        boardgame.bgg_id = boardgame.bgg_id || '';
         boardgame.instructions = () => getInstructions(boardgame.id);
         if (boardgame.review_video_id) {
           boardgame.review_video = () => getVideo(boardgame.review_video_id);

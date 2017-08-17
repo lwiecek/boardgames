@@ -39,7 +39,7 @@ function createOrUpdateBoardGame(id) {
     xml2js.parseString(body, function (err, result) {
       const item = result.items.item[0];
       const value = (elm) => elm[0]['$'].value;
-      // TODO: use the primary name
+      // TODO: use the primary name, right now assues the first name is primary
       const name = value(item.name);
       const slug = name;
       const description = item.description[0];
@@ -47,8 +47,8 @@ function createOrUpdateBoardGame(id) {
       const playersNumber = `[${value(item.minplayers)},${value(item.maxplayers)}]`;
       const playingTime = `[${value(item.minplaytime)},${value(item.maxplaytime)}]`;
       const yearPublished = value(item.yearpublished);
+      const bggRating = value(item.statistics[0].ratings[0].average);
       // TODO: INSERT OR UPDATE
-      // TODO: BGG rating
       const query = SQL`
         INSERT INTO boardgame(
           name,
@@ -59,7 +59,8 @@ function createOrUpdateBoardGame(id) {
           players_number,
           playing_time,
           year_published,
-          bgg_id
+          bgg_id,
+          bgg_rating
         ) VALUES (
           ${name},
           ${slug},
@@ -69,7 +70,8 @@ function createOrUpdateBoardGame(id) {
           ${playersNumber},
           ${playingTime},
           ${yearPublished},
-          ${id}
+          ${id},
+          ${bggRating}
         )
         RETURNING id;`;
       return pool.query(query).then((result) => {
