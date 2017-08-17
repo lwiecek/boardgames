@@ -16,7 +16,7 @@ exports.up = (pgm) => {
   pgm.createTable('boardgame', {
     id: 'id',
     name: {type: 'text', notNull: true},
-    slug: {type: 'text', notNull: true},
+    slug: {type: 'text', notNull: true, unique: true},
     subtitle: {type: 'text', notNull: true},
     description: {type: 'text', notNull: true},
     review_video_id: {type: 'integer', references: 'video'},
@@ -29,6 +29,7 @@ exports.up = (pgm) => {
     randomness: {type: 'integer'},
     popularity: {type: 'integer'},
     bgg_rating: {type: 'numeric'},
+    bgg_id: {type: 'integer', unique: true}
   });
   pgm.createType('image_type', ['table', 'cover', 'box', 'photo']);
   pgm.createTable('image', {
