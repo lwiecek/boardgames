@@ -39,12 +39,16 @@ function createOrUpdateBoardGame(id) {
     xml2js.parseString(body, function (err, result) {
       const item = result.items.item[0];
       const value = (elm) => elm[0]['$'].value;
+      // TODO: use the primary name
       const name = value(item.name);
       const slug = name;
       const description = item.description[0];
-      const age_restriction = `[${value(item.minage)},]`;
-      const players_number = `[${value(item.minplayers)},${value(item.maxplayers)}]`;
-      const playing_time = `[${value(item.minplaytime)},${value(item.maxplaytime)}]`;
+      const ageRestriction = `[${value(item.minage)},]`;
+      const playersNumber = `[${value(item.minplayers)},${value(item.maxplayers)}]`;
+      const playingTime = `[${value(item.minplaytime)},${value(item.maxplaytime)}]`;
+      const yearPublished = value(item.yearpublished);
+      // TODO: INSERT OR UPDATE
+      // TODO: BGG rating
       const query = SQL`
         INSERT INTO boardgame(
           name,
@@ -53,17 +57,40 @@ function createOrUpdateBoardGame(id) {
           description,
           age_restriction,
           players_number,
-          playing_time
+          playing_time,
+          year_published,
+          bgg_id
         ) VALUES (
           ${name},
           ${slug},
           '',
           ${description},
-          ${age_restriction},
-          ${players_number},
-          ${playing_time}
-        );`;
-      return pool.query(query);
+          ${ageRestriction},
+          ${playersNumber},
+          ${playingTime},
+          ${yearPublished},
+          ${id}
+        )
+        RETURNING id;`;
+      return pool.query(query).then((result) => {
+        const imageUri = item.image[0];
+        const boardgameID = result.rows[0].id;
+        // TODO: INSERT OR UPDATE
+        const queryImage = SQL`
+          INSERT INTO image(
+            uri,
+            type,
+            boardgame_id
+          ) VALUES (
+            ${imageUri},
+            'box',
+            ${boardgameID}
+          )
+        `;
+        return pool.query(queryImage);
+      });
+      // TODO: add videos
+      // TODO: add publishers
     });
   });
 }

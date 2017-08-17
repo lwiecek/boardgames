@@ -74,7 +74,7 @@ function boardgamesResolver(publisherID, designerID) {
       SELECT
         id, name, slug, subtitle, description, review_video_id, age_restriction,
         players_number, playing_time, publisher_id, designer_id, difficulty, randomness,
-        popularity, bgg_rating
+        popularity, bgg_rating, year_published
       FROM boardgame`;
     if (publisherID) {
       fragments.push(SQL`publisher_id=${publisherID}`);

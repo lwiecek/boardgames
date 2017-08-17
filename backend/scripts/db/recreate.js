@@ -4,10 +4,12 @@
 const config = require('config');
 const pg = require('pg');
 
-if (process.env.NODE_ENV !== 'test') {
-  console.log('database recreation is only allowed in test environment');
-  process.exit(1);
-}
+// FIXME Temporarily turned off due to testing of sample BGG data
+// in development database, uncomment once I am happy with the initial data
+// if (process.env.NODE_ENV !== 'test') {
+//   console.log('database recreation is only allowed in test environment');
+//   process.exit(1);
+// }
 
 const client = new pg.Client({
   // use this database for connection purposes, boardgames may be missing

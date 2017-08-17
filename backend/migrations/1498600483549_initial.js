@@ -28,6 +28,7 @@ exports.up = (pgm) => {
     difficulty: {type: 'integer'},
     randomness: {type: 'integer'},
     popularity: {type: 'integer'},
+    year_published: {type: 'integer'},
     bgg_rating: {type: 'numeric'},
     bgg_id: {type: 'integer', unique: true}
   });
@@ -38,6 +39,7 @@ exports.up = (pgm) => {
     type: {type: 'image_type', notNull: true},
     boardgame_id: {type: 'integer', references: 'boardgame'},
   });
+  pgm.createIndex('image', ['uri', 'type', 'boardgame_id'], {unique: true});
   pgm.createTable('instruction', {
     id: 'id',
     text_uri: {type: 'text', notNull: true},
@@ -49,6 +51,7 @@ exports.up = (pgm) => {
 exports.down = (pgm) => {
   pgm.dropTable('instruction');
   pgm.dropTable('image');
+  pgm.dropIndex('image', ['uri', 'type', 'boardgame_id'], {unique: true});
   pgm.dropTable('boardgame');
   pgm.dropTable('video');
   pgm.dropTable('publisher');
