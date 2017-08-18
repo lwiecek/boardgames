@@ -6,6 +6,7 @@ const request = require('request');
 const xml2js = require('xml2js');
 const pg = require('pg');
 const SQL = require('sql-template-strings').SQL;
+const slugify = require('slugify');
 
 const argv = require('yargs')
   .demandCommand(1)
@@ -43,8 +44,7 @@ function createOrUpdateBoardGame(id) {
         return elements.filter((elm) => elm['$'].type === 'primary')[0]['$'].value;
       }
       const name = getPrimaryName(item.name);
-      // TODO: slugify name
-      const slug = name;
+      const slug = slugify(name, {lower: true});
       const description = item.description[0];
       const ageRestriction = `[${value(item.minage)},]`;
       const playersNumber = `[${value(item.minplayers)},${value(item.maxplayers)}]`;
@@ -100,6 +100,7 @@ function createOrUpdateBoardGame(id) {
   });
 }
 
+// TODO: add reporting progress
 if (command === 'sample_boardgames') {
   const sampleGeeklistID = 1;
   request(`${config.get('boardgamegeek.api_url')}/geeklist/${sampleGeeklistID}`, (err, response, body) => {
