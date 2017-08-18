@@ -7,6 +7,7 @@ const xml2js = require('xml2js');
 const pg = require('pg');
 const SQL = require('sql-template-strings').SQL;
 const slugify = require('slugify');
+const ProgressBar = require('progress');
 
 const argv = require('yargs')
   .demandCommand(1)
@@ -31,7 +32,7 @@ pool.on('error', err =>
   console.error('idle client error', err.message, err.stack),
 );
 
-function createOrUpdateBoardGame(id) {
+function createOrUpdateBoardGame(id, bar) {
   const details = `type=boardgame&id=${id}&stats=1&videos=1`;
   request(`${config.get('boardgamegeek.api_url')}/thing?${details}`, (err, response, body) => {
     if (err) {
@@ -41,7 +42,7 @@ function createOrUpdateBoardGame(id) {
       const item = result.items.item[0];
       const value = (elements) => elements[0]['$'].value;
       const getPrimaryName = (elements) => {
-        return elements.filter((elm) => elm['$'].type === 'primary')[0]['$'].value;
+        return elements.filter(elm => elm['$'].type === 'primary')[0]['$'].value;
       }
       const name = getPrimaryName(item.name);
       const slug = slugify(name, {lower: true});
@@ -101,14 +102,13 @@ function createOrUpdateBoardGame(id) {
           ON CONFLICT DO NOTHING
         `;
         return pool.query(queryImage);
-      });
+      }).then(() => bar.tick());
       // TODO: add videos
       // TODO: add publishers
     });
   });
 }
 
-// TODO: add reporting progress
 if (command === 'sample_boardgames') {
   const sampleGeeklistID = 1;
   request(`${config.get('boardgamegeek.api_url')}/geeklist/${sampleGeeklistID}`, (err, response, body) => {
@@ -116,13 +116,18 @@ if (command === 'sample_boardgames') {
       throw err;
     }
     xml2js.parseString(body, function (err, result) {
-      for (let item of result.geeklist.item) {
-        if (item['$'].subtype === 'boardgame') {
-          createOrUpdateBoardGame(item['$'].objectid);
-        }
+      const boardgames = result.geeklist.item.filter(elm => elm['$'].subtype === 'boardgame');
+      const bar = new ProgressBar('loading sample board games [:bar] :percent (:current/:total) :etas', {
+          complete: '=',
+          incomplete: ' ',
+          width: 20,
+          total: boardgames.length
+      });
+      for (let item of boardgames) {
+        createOrUpdateBoardGame(item['$'].objectid, bar);
       }
     });
   });
 } else if (command === 'load_boardgames') {
-
+  // TODO: determine range of board game ids somehow
 }
