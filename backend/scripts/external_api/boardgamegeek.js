@@ -51,7 +51,10 @@ function createOrUpdateBoardGame(id) {
       const playingTime = `[${value(item.minplaytime)},${value(item.maxplaytime)}]`;
       const yearPublished = value(item.yearpublished);
       const bggRating = value(item.statistics[0].ratings[0].average);
-      // TODO: INSERT OR UPDATE
+      // Upsert with more than one unique key (slug, bbg_id) in Postgres is hard.
+      // Ignoring conflicting games with ON CONFLICT DO NOTHING,
+      // easier to delete them and recreate in case of edits.
+      // See: https://stackoverflow.com/questions/1109061/insert-on-duplicate-update-in-postgresql
       const query = SQL`
         INSERT INTO boardgame(
           name,
@@ -76,11 +79,15 @@ function createOrUpdateBoardGame(id) {
           ${id},
           ${bggRating}
         )
+        ON CONFLICT DO NOTHING
         RETURNING id;`;
       return pool.query(query).then((result) => {
+        if (!result.rows.length) {
+          return;
+        }
         const imageUri = item.image[0];
         const boardgameID = result.rows[0].id;
-        // TODO: INSERT OR UPDATE
+        // Skiping duplicates with ON CONFLICT DO NOTHING
         const queryImage = SQL`
           INSERT INTO image(
             uri,
@@ -91,6 +98,7 @@ function createOrUpdateBoardGame(id) {
             'box',
             ${boardgameID}
           )
+          ON CONFLICT DO NOTHING
         `;
         return pool.query(queryImage);
       });
