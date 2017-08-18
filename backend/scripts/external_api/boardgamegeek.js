@@ -38,9 +38,12 @@ function createOrUpdateBoardGame(id) {
     }
     xml2js.parseString(body, function (err, result) {
       const item = result.items.item[0];
-      const value = (elm) => elm[0]['$'].value;
-      // TODO: use the primary name, right now assues the first name is primary
-      const name = value(item.name);
+      const value = (elements) => elements[0]['$'].value;
+      const getPrimaryName = (elements) => {
+        return elements.filter((elm) => elm['$'].type === 'primary')[0]['$'].value;
+      }
+      const name = getPrimaryName(item.name);
+      // TODO: slugify name
       const slug = name;
       const description = item.description[0];
       const ageRestriction = `[${value(item.minage)},]`;
@@ -106,7 +109,7 @@ if (command === 'sample_boardgames') {
     xml2js.parseString(body, function (err, result) {
       for (let item of result.geeklist.item) {
         if (item['$'].subtype === 'boardgame') {
-          createOrUpdateBoardGame(item['$'].objectid)
+          createOrUpdateBoardGame(item['$'].objectid);
         }
       }
     });
