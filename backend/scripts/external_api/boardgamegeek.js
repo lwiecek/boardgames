@@ -32,6 +32,142 @@ pool.on('error', err =>
   console.error('idle client error', err.message, err.stack),
 );
 
+function processReviewsXML(boardGameID, reviews) {
+  if (!reviews.length) {
+    return Promise.resolve();
+  }
+  // TODO: pick the one with the latest postdate?
+  const reviewVideoUri = reviews[0]['$'].link;
+  const queryVideo = SQL`
+    INSERT INTO video(uri)
+    VALUES (${reviewVideoUri})
+    ON CONFLICT DO NOTHING
+    RETURNING id;
+  `;
+  return pool.query(queryVideo).then((result) => {
+    if (!result.rows.length) {
+      return Promise.resolve();
+    }
+    const reviewVideoID = result.rows[0].id;
+    const queryUpdateBoardgame = SQL`
+      UPDATE boardgame
+      SET review_video_id=${reviewVideoID}
+      WHERE id=${boardGameID}
+    `;
+    return pool.query(queryUpdateBoardgame);
+  });
+}
+
+function processInstructionsXML(boardGameID, instructions) {
+  if (!instructions.length) {
+    return Promise.resolve();
+  }
+  // TODO: pick the one with the latest postdate?
+  const instructionVideoUri = instructions[0]['$'].link;
+  const queryInstructionVideo = SQL`
+    INSERT INTO video(uri)
+    VALUES (${instructionVideoUri})
+    ON CONFLICT DO NOTHING
+    RETURNING id;
+  `;
+  return pool.query(queryInstructionVideo).then(result => {
+    if (!result.rows.length) {
+      return Promise.resolve();
+    }
+    const videoID = result.rows[0].id;
+    const queryInstruction = SQL`
+      INSERT INTO instruction(text_uri, video_id, boardgame_id)
+      VALUES ('', ${videoID}, ${boardGameID})
+      ON CONFLICT DO NOTHING;
+    `;
+    return pool.query(queryInstruction);
+  });
+}
+
+function processBoardGameXML(id, result) {
+  const item = result.items.item[0];
+  const value = (elements) => elements[0]['$'].value;
+  const getPrimaryName = (elements) => {
+    return elements.filter(elm => elm['$'].type === 'primary')[0]['$'].value;
+  }
+  const name = getPrimaryName(item.name);
+  const slug = slugify(name, {lower: true});
+  const description = item.description[0];
+  const ageRestriction = `[${value(item.minage)},]`;
+  const playersNumber = `[${value(item.minplayers)},${value(item.maxplayers)}]`;
+  const playingTime = `[${value(item.minplaytime)},${value(item.maxplaytime)}]`;
+  const yearPublished = value(item.yearpublished);
+  const bggRating = value(item.statistics[0].ratings[0].average);
+  // Upsert with more than one unique key (slug, bbg_id) in Postgres is hard.
+  // Ignoring conflicting games with ON CONFLICT DO NOTHING,
+  // easier to delete them and recreate in case of edits.
+  // See: https://stackoverflow.com/questions/1109061/insert-on-duplicate-update-in-postgresql
+  const query = SQL`
+    INSERT INTO boardgame(
+      name,
+      slug,
+      subtitle,
+      description,
+      age_restriction,
+      players_number,
+      playing_time,
+      year_published,
+      bgg_id,
+      bgg_rating
+    ) VALUES (
+      ${name},
+      ${slug},
+      '',
+      ${description},
+      ${ageRestriction},
+      ${playersNumber},
+      ${playingTime},
+      ${yearPublished},
+      ${id},
+      ${bggRating}
+    )
+    ON CONFLICT DO NOTHING
+    RETURNING id;
+  `;
+  // TODO refactor with Promise.all ?
+  // TODO use async / await ?
+  return pool.query(query).then((result) => {
+    if (!result.rows.length) {
+      return;
+    }
+    const imageUri = item.image[0];
+    const boardGameID = result.rows[0].id;
+    // Skiping duplicates with ON CONFLICT DO NOTHING
+    const queryImage = SQL`
+      INSERT INTO image(
+        uri,
+        type,
+        boardgame_id
+      ) VALUES (
+        ${imageUri},
+        'box',
+        ${boardGameID}
+      )
+      ON CONFLICT DO NOTHING;
+    `;
+    return pool.query(queryImage).then(() => boardGameID);
+  }).then((boardGameID) => {
+    if (!item.videos[0].video) {
+      return;
+    }
+    const videos = item.videos[0].video.filter(elm =>
+      elm['$'].language === config.get('boardgamegeek.language'));
+    const reviews = videos.filter(elm => elm['$'].category === 'review');
+    const instructions = videos.filter(elm => elm['$'].category === 'instructional');
+    return Promise.all([
+      processReviewsXML(boardGameID, reviews),
+      processInstructionsXML(boardGameID, instructions)
+    ]);
+  });
+  // TODO: add publishers
+  // TODO: add designer
+}
+
 function createOrUpdateBoardGame(id, bar) {
   const details = `type=boardgame&id=${id}&stats=1&videos=1`;
   request(`${config.get('boardgamegeek.api_url')}/thing?${details}`, (err, response, body) => {
@@ -39,132 +175,7 @@ function createOrUpdateBoardGame(id, bar) {
       throw err;
     }
     xml2js.parseString(body, function (err, result) {
-      const item = result.items.item[0];
-      const value = (elements) => elements[0]['$'].value;
-      const getPrimaryName = (elements) => {
-        return elements.filter(elm => elm['$'].type === 'primary')[0]['$'].value;
-      }
-      const name = getPrimaryName(item.name);
-      const slug = slugify(name, {lower: true});
-      const description = item.description[0];
-      const ageRestriction = `[${value(item.minage)},]`;
-      const playersNumber = `[${value(item.minplayers)},${value(item.maxplayers)}]`;
-      const playingTime = `[${value(item.minplaytime)},${value(item.maxplaytime)}]`;
-      const yearPublished = value(item.yearpublished);
-      const bggRating = value(item.statistics[0].ratings[0].average);
-      // Upsert with more than one unique key (slug, bbg_id) in Postgres is hard.
-      // Ignoring conflicting games with ON CONFLICT DO NOTHING,
-      // easier to delete them and recreate in case of edits.
-      // See: https://stackoverflow.com/questions/1109061/insert-on-duplicate-update-in-postgresql
-      const query = SQL`
-        INSERT INTO boardgame(
-          name,
-          slug,
-          subtitle,
-          description,
-          age_restriction,
-          players_number,
-          playing_time,
-          year_published,
-          bgg_id,
-          bgg_rating
-        ) VALUES (
-          ${name},
-          ${slug},
-          '',
-          ${description},
-          ${ageRestriction},
-          ${playersNumber},
-          ${playingTime},
-          ${yearPublished},
-          ${id},
-          ${bggRating}
-        )
-        ON CONFLICT DO NOTHING
-        RETURNING id;
-      `;
-      // TODO refactor with Promise.all ?
-      // TODO use async / await ?
-      return pool.query(query).then((result) => {
-        if (!result.rows.length) {
-          return;
-        }
-        const imageUri = item.image[0];
-        const boardGameID = result.rows[0].id;
-        // Skiping duplicates with ON CONFLICT DO NOTHING
-        const queryImage = SQL`
-          INSERT INTO image(
-            uri,
-            type,
-            boardgame_id
-          ) VALUES (
-            ${imageUri},
-            'box',
-            ${boardGameID}
-          )
-          ON CONFLICT DO NOTHING;
-        `;
-        return pool.query(queryImage).then(() => boardGameID);
-      }).then((boardGameID) => {
-        if (!item.videos[0].video) {
-          return;
-        }
-        const videos = item.videos[0].video.filter(elm =>
-          elm['$'].language === config.get('boardgamegeek.language'));
-        const reviews = videos.filter(elm =>
-          elm['$'].category === 'review');
-        const instructions = videos.filter(elm =>
-          elm['$'].category === 'instructional');
-        let promises = []
-        if (reviews.length) {
-          // TODO: pick the one with the latest postdate?
-          const reviewVideoUri = reviews[0]['$'].link;
-          const queryVideo = SQL`
-            INSERT INTO video(uri)
-            VALUES (${reviewVideoUri})
-            ON CONFLICT DO NOTHING
-            RETURNING id;
-          `;
-          promises.push(pool.query(queryVideo).then((result) => {
-            if (!result.rows.length) {
-              return;
-            }
-            const reviewVideoID = result.rows[0].id;
-            const queryUpdateBoardgame = SQL`
-              UPDATE boardgame
-              SET review_video_id=${reviewVideoID}
-              WHERE id=${boardGameID}
-            `;
-            return pool.query(queryUpdateBoardgame);
-          }));
-        }
-        if (instructions.length) {
-          // TODO: pick the one with the latest postdate?
-          const instructionVideoUri = instructions[0]['$'].link;
-          const queryInstructionVideo = SQL`
-            INSERT INTO video(uri)
-            VALUES (${instructionVideoUri})
-            ON CONFLICT DO NOTHING
-            RETURNING id;
-          `;
-          promises.push(pool.query(queryInstructionVideo).then(result => {
-            if (!result.rows.length) {
-              return;
-            }
-            const videoID = result.rows[0].id;
-            const queryInstruction = SQL`
-              INSERT INTO instruction(text_uri, video_id, boardgame_id)
-              VALUES ('', ${videoID}, ${boardGameID})
-              ON CONFLICT DO NOTHING;
-            `;
-            return pool.query(queryInstruction);
-          }));
-        }
-        return Promise.all(promises);
-      }).then(() => bar.tick());
-
-      // TODO: add publishers
-      // TODO: add designer
+      processBoardGameXML(id, result).then(() => bar.tick());
     });
   });
 }

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<items termsofuse="http://boardgamegeek.com/xmlapi/termsofuse">
+   <item type="boardgame" id="3">
+      <thumbnail>https://cf.geekdo-images.com/images/pic3211873_t.jpg</thumbnail>
+      <image>https://cf.geekdo-images.com/images/pic3211873.jpg</image>
+      <name type="primary" sortindex="1" value="Samurai" />
+      <name type="alternate" sortindex="1" value="Samurái" />
+      <name type="alternate" sortindex="1" value="Samuraj" />
+      <name type="alternate" sortindex="1" value="Самурай" />
+      <name type="alternate" sortindex="1" value="侍" />
+      <description>Part of the Knizia tile-laying trilogy, Samurai is set in medieval Japan. Players compete to gain the favor of three factions: samurai, peasants, and priests, which are represented by helmet, rice paddy, and Buddha tokens scattered about the board, which features the islands of Japan. The competition is waged through the use of hexagonal tiles, each of which help curry favor of one of the three factions &amp;mdash; or all three at once! Players can make lightning-quick strikes with horseback ronin and ships or approach their conquests more methodically. As each token (helmets, rice paddies, and Buddhas) is surrounded, it is awarded to the player who has gained the most favor with the corresponding group.&amp;#10;&amp;#10;Gameplay continues until all the symbols of one type have been removed from the board or four tokens have been removed from play due to a tie for influence.&amp;#10;&amp;#10;At the end of the game, players compare captured symbols of each type, competing for majorities in each of the three types. Ties are not uncommon and are broken based on the number of other, &amp;quot;non-majority&amp;quot; symbols each player has collected.&amp;#10;&amp;#10;</description>
+      <yearpublished value="1998" />
+      <minplayers value="2" />
+      <maxplayers value="4" />
+      <poll name="suggested_numplayers" title="User Suggested Number of Players" totalvotes="269">
+         <results numplayers="1">
+            <result value="Best" numvotes="0" />
+            <result value="Recommended" numvotes="0" />
+            <result value="Not Recommended" numvotes="120" />
+         </results>
+         <results numplayers="2">
+            <result value="Best" numvotes="96" />
+            <result value="Recommended" numvotes="127" />
+            <result value="Not Recommended" numvotes="12" />
+         </results>
+         <results numplayers="3">
+            <result value="Best" numvotes="155" />
+            <result value="Recommended" numvotes="80" />
+            <result value="Not Recommended" numvotes="2" />
+         </results>
+         <results numplayers="4">
+            <result value="Best" numvotes="68" />
+            <result value="Recommended" numvotes="125" />
+            <result value="Not Recommended" numvotes="24" />
+         </results>
+         <results numplayers="4+">
+            <result value="Best" numvotes="0" />
+            <result value="Recommended" numvotes="1" />
+            <result value="Not Recommended" numvotes="101" />
+         </results>
+      </poll>
+      <playingtime value="60" />
+      <minplaytime value="30" />
+      <maxplaytime value="60" />
+      <minage value="10" />
+      <poll name="suggested_playerage" title="User Suggested Player Age" totalvotes="41">
+         <results>
+            <result value="2" numvotes="0" />
+            <result value="3" numvotes="0" />
+            <result value="4" numvotes="0" />
+            <result value="5" numvotes="0" />
+            <result value="6" numvotes="4" />
+            <result value="8" numvotes="11" />
+            <result value="10" numvotes="22" />
+            <result value="12" numvotes="4" />
+            <result value="14" numvotes="0" />
+            <result value="16" numvotes="0" />
+            <result value="18" numvotes="0" />
+            <result value="21 and up" numvotes="0" />
+         </results>
+      </poll>
+      <poll name="language_dependence" title="Language Dependence" totalvotes="69">
+         <results>
+            <result level="1" value="No necessary in-game text" numvotes="69" />
+            <result level="2" value="Some necessary text - easily memorized or small crib sheet" numvotes="0" />
+            <result level="3" value="Moderate in-game text - needs crib sheet or paste ups" numvotes="0" />
+            <result level="4" value="Extensive use of text - massive conversion needed to be playable" numvotes="0" />
+            <result level="5" value="Unplayable in another language" numvotes="0" />
+         </results>
+      </poll>
+      <link type="boardgamecategory" id="1009" value="Abstract Strategy" />
+      <link type="boardgamecategory" id="1035" value="Medieval" />
+      <link type="boardgamemechanic" id="2080" value="Area Control / Area Influence" />
+      <link type="boardgamemechanic" id="2040" value="Hand Management" />
+      <link type="boardgamemechanic" id="2004" value="Set Collection" />
+      <link type="boardgamemechanic" id="2002" value="Tile Placement" />
+      <link type="boardgamefamily" id="9470" value="Asian Theme" />
+      <link type="boardgamefamily" id="10634" value="Country: Japan" />
+      <link type="boardgamefamily" id="42" value="Knizia tile-laying trilogy" />
+      <link type="boardgamefamily" id="28732" value="Samurai" />
+      <link type="boardgamedesigner" id="2" value="Reiner Knizia" />
+      <link type="boardgameartist" id="11883" value="Franz Vohwinkel" />
+      <link type="boardgamepublisher" id="267" value="999 Games" />
+      <link type="boardgamepublisher" id="29" value="ABACUSSPIELE" />
+      <link type="boardgamepublisher" id="7340" value="Astrel Games" />
+      <link type="boardgamepublisher" id="7335" value="Ceilikan Jogos" />
+      <link type="boardgamepublisher" id="41" value="Descartes Editeur" />
+      <link type="boardgamepublisher" id="2973" value="Edge Entertainment" />
+      <link type="boardgamepublisher" id="17" value="Fantasy Flight Games" />
+      <link type="boardgamepublisher" id="4617" value="Galakta" />
+      <link type="boardgamepublisher" id="133" value="Hans im Glück Verlags-GmbH" />
+      <link type="boardgamepublisher" id="1391" value="Hobby Japan" />
+      <link type="boardgamepublisher" id="5812" value="Lacerta" />
+      <link type="boardgamepublisher" id="3218" value="Lautapelit.fi" />
+      <link type="boardgamepublisher" id="3" value="Rio Grande Games" />
+      <link type="boardgamepublisher" id="3954" value="Skandinavisk  Spil Kompagni" />
+      <link type="boardgamepublisher" id="8313" value="Smart Ltd" />
+      <link type="boardgamepublisher" id="8759" value="Wargames Club Publishing" />
+      <videos total="28">
+         <video id="145115" title="Samurai [Brettspiel] - Überblick, Regeln und Spielablauf" category="instructional" language="German" link="http://www.youtube.com/watch?v=zgt7lDcrjKo" username="arvama" userid="1053643" postdate="2017-08-08T05:46:04-05:00" />
+         <video id="134692" title="Samurai - Secuencia del turno y opinión" category="review" language="Spanish" link="http://www.youtube.com/watch?v=nzEj_ZXwips" username="Alexdruchii" userid="640959" postdate="2017-04-27T09:07:02-05:00" />
+         <video id="134691" title="Samurai - Setup" category="review" language="Spanish" link="http://www.youtube.com/watch?v=8OMuBHZWUW0" username="Alexdruchii" userid="640959" postdate="2017-04-27T09:06:05-05:00" />
+         <video id="134690" title="Samurai - Componentes" category="review" language="Spanish" link="http://www.youtube.com/watch?v=NACvhG6M47U" username="Alexdruchii" userid="640959" postdate="2017-04-27T09:05:11-05:00" />
+         <video id="134689" title="Samurai - Intro y unboxing" category="review" language="Spanish" link="http://www.youtube.com/watch?v=NPzu0h0p7x8" username="Alexdruchii" userid="640959" postdate="2017-04-27T09:04:10-05:00" />
+         <video id="118050" title="No Rules Review: Samurai" category="review" language="English" link="http://www.youtube.com/watch?v=xGTZGJkAmAs" username="malayet2" userid="615784" postdate="2016-11-16T07:57:55-06:00" />
+         <video id="110844" title="Samurai: como jogar" category="review" language="Portuguese" link="http://www.youtube.com/watch?v=csdZb_njbM0" username="Cidade Curiosa" userid="1274974" postdate="2016-09-14T18:48:19-05:00" />
+         <video id="110353" title="Lanlalen EP74: Samurai" category="review" language="Thai" link="http://www.youtube.com/watch?v=SWnzTgsuvMQ" username="lanlalencafe" userid="760965" postdate="2016-09-09T05:42:02-05:00" />
+         <video id="109333" title="Rahdo Runs Through►►► Samurai" category="review" language="English" link="http://www.youtube.com/watch?v=xANdNgDG67g" username="rahdo" userid="313730" postdate="2016-08-29T01:20:21-05:00" />
+         <video id="97720" title="Brettspill med Takras #236 - Samurai!" category="review" language="Norwegian" link="http://www.youtube.com/watch?v=jn4pTdDYEFA" username="takras" userid="365324" postdate="2016-05-07T04:42:01-05:00" />
+         <video id="96972" title="Dice Tower Reviews: Samurai - with Takras" category="review" language="English" link="http://www.youtube.com/watch?v=uPLr1ysUrHk" username="takras" userid="365324" postdate="2016-04-27T15:19:50-05:00" />
+         <video id="95607" title="Samurai - Juego de Mesa 0108 " category="review" language="Spanish" link="http://www.youtube.com/watch?v=rj3yAJfTF8c" username="Kueltazar" userid="646230" postdate="2016-04-11T14:46:17-05:00" />
+         <video id="92427" title="Análisis - Samurai (Tira el dado)" category="review" language="Spanish" link="http://www.youtube.com/watch?v=PmlyruwtlvU" username="parax" userid="589135" postdate="2016-03-02T13:51:05-06:00" />
+         <video id="83174" title="GreyElephant Gaming &amp;quot;Live Play&amp;quot; Samurai" category="session" language="English" link="http://www.youtube.com/watch?v=C5oWb55WjW0" username="greyelephant" userid="332613" postdate="2015-11-08T05:19:58-06:00" />
+         <video id="83173" title="GreyElephant Gaming &amp;quot;Quick Review&amp;quot; Samurai" category="review" language="English" link="http://www.youtube.com/watch?v=0XGR2Y9s1lM" username="greyelephant" userid="332613" postdate="2015-11-08T05:18:53-06:00" />
+      </videos>
+      <statistics page="1">
+         <ratings>
+            <usersrated value="12238" />
+            <average value="7.43899" />
+            <bayesaverage value="7.27909" />
+            <ranks>
+               <rank type="subtype" id="1" name="boardgame" friendlyname="Board Game Rank" value="153" bayesaverage="7.27909" />
+               <rank type="family" id="5497" name="strategygames" friendlyname="Strategy Game Rank" value="114" bayesaverage="7.3036" />
+            </ranks>
+            <stddev value="1.18645" />
+            <median value="0" />
+            <owned value="12157" />
+            <trading value="239" />
+            <wanting value="719" />
+            <wishing value="2683" />
+            <numcomments value="3328" />
+            <numweights value="1364" />
+            <averageweight value="2.5059" />
+         </ratings>
+      </statistics>
+   </item>
+</items>
