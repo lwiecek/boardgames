@@ -10,6 +10,7 @@
         "name": "boardgames"
     },
     "boardgamegeek": {
-        "api_url": "https://www.boardgamegeek.com/xmlapi2"
+        "api_url": "https://www.boardgamegeek.com/xmlapi2",
+        "language": "English"
     }
 }

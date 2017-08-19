@@ -81,13 +81,16 @@ function createOrUpdateBoardGame(id, bar) {
           ${bggRating}
         )
         ON CONFLICT DO NOTHING
-        RETURNING id;`;
+        RETURNING id;
+      `;
+      // TODO refactor with Promise.all ?
+      // TODO use async / await ?
       return pool.query(query).then((result) => {
         if (!result.rows.length) {
           return;
         }
         const imageUri = item.image[0];
-        const boardgameID = result.rows[0].id;
+        const boardGameID = result.rows[0].id;
         // Skiping duplicates with ON CONFLICT DO NOTHING
         const queryImage = SQL`
           INSERT INTO image(
@@ -97,14 +100,51 @@ function createOrUpdateBoardGame(id, bar) {
           ) VALUES (
             ${imageUri},
             'box',
-            ${boardgameID}
+            ${boardGameID}
           )
-          ON CONFLICT DO NOTHING
+          ON CONFLICT DO NOTHING;
         `;
-        return pool.query(queryImage);
+        return pool.query(queryImage).then(() => boardGameID);
+      }).then((boardGameID) => {
+        console.log(boardGameID);
+        if (!item.videos[0].video) {
+          return;
+        }
+        const videos = item.videos[0].video.filter(elm =>
+          elm['$'].language === config.get('boardgamegeek.language'));
+        const instructions = videos.filter(elm =>
+          elm['$'].category === 'instructional');
+        const reviews = videos.filter(elm =>
+          elm['$'].category === 'review');
+        if (reviews.length) {
+          // console.log(reviews);
+          // TODO: pick the one with the latest postdate?
+          const reviewVideoUri = reviews[0]['$'].link;
+          const queryVideo = SQL`
+            INSERT INTO video(uri)
+            VALUES (${reviewVideoUri})
+            ON CONFLICT DO NOTHING
+            RETURNING id;
+          `;
+          return pool.query(queryVideo).then((result) => {
+            if (!result.rows.length) {
+              return;
+            }
+            const reviewVideoID = result.rows[0].id;
+            // console.log(reviewVideoID);
+            // console.log(boardGameID);
+            const queryUpdateBoardgame = SQL`
+              UPDATE boardgame
+              SET review_video_id=${reviewVideoID}
+              WHERE id=${boardGameID}
+            `;
+            return pool.query(queryUpdateBoardgame);
+          });
+        }
       }).then(() => bar.tick());
-      // TODO: add videos
+
       // TODO: add publishers
+      // TODO: add designer
     });
   });
 }
@@ -116,14 +156,14 @@ if (command === 'sample_boardgames') {
       throw err;
     }
     xml2js.parseString(body, function (err, result) {
-      const boardgames = result.geeklist.item.filter(elm => elm['$'].subtype === 'boardgame');
+      const boardGames = result.geeklist.item.filter(elm => elm['$'].subtype === 'boardgame');
       const bar = new ProgressBar('loading sample board games [:bar] :percent (:current/:total) :etas', {
           complete: '=',
           incomplete: ' ',
           width: 20,
-          total: boardgames.length
+          total: boardGames.length
       });
-      for (let item of boardgames) {
+      for (let item of boardGames) {
         createOrUpdateBoardGame(item['$'].objectid, bar);
       }
     });
