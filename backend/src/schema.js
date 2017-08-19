@@ -29,7 +29,6 @@ const schema = buildSchema(`
     id: ID!
     text_uri: String!
     video: Video
-    boardgame: BoardGame!
   }
   type BoardGame {
     id: ID!

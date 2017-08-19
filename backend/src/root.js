@@ -68,6 +68,7 @@ function getVideo(videoID) {
 }
 
 function boardgamesResolver(publisherID, designerID) {
+  // TODO: ensure board games are sorted e.g. by ID
   return (args) => {
     const fragments = [];
     const query = SQL`
@@ -137,6 +138,7 @@ function boardgamesResolver(publisherID, designerID) {
 }
 
 function designersResolver(designerID) {
+  // TODO: ensure designers are sorted e.g. by ID
   const query = SQL`SELECT id, name, website_uri FROM designer`;
   if (designerID) {
     query.append(SQL` WHERE id=${designerID}`);
@@ -156,6 +158,7 @@ function designersResolver(designerID) {
 }
 
 function publishersResolver(publisherID) {
+  // TODO: ensure publishers are sorted e.g. by ID
   const query = SQL`SELECT id, name, website_uri FROM publisher`;
   if (publisherID) {
     query.append(SQL` WHERE id=${publisherID}`);

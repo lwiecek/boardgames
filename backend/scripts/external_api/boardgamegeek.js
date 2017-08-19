@@ -106,18 +106,17 @@ function createOrUpdateBoardGame(id, bar) {
         `;
         return pool.query(queryImage).then(() => boardGameID);
       }).then((boardGameID) => {
-        console.log(boardGameID);
         if (!item.videos[0].video) {
           return;
         }
         const videos = item.videos[0].video.filter(elm =>
           elm['$'].language === config.get('boardgamegeek.language'));
-        const instructions = videos.filter(elm =>
-          elm['$'].category === 'instructional');
         const reviews = videos.filter(elm =>
           elm['$'].category === 'review');
+        const instructions = videos.filter(elm =>
+          elm['$'].category === 'instructional');
+        let promises = []
         if (reviews.length) {
-          // console.log(reviews);
           // TODO: pick the one with the latest postdate?
           const reviewVideoUri = reviews[0]['$'].link;
           const queryVideo = SQL`
@@ -126,21 +125,42 @@ function createOrUpdateBoardGame(id, bar) {
             ON CONFLICT DO NOTHING
             RETURNING id;
           `;
-          return pool.query(queryVideo).then((result) => {
+          promises.push(pool.query(queryVideo).then((result) => {
             if (!result.rows.length) {
               return;
             }
             const reviewVideoID = result.rows[0].id;
-            // console.log(reviewVideoID);
-            // console.log(boardGameID);
             const queryUpdateBoardgame = SQL`
               UPDATE boardgame
               SET review_video_id=${reviewVideoID}
               WHERE id=${boardGameID}
             `;
             return pool.query(queryUpdateBoardgame);
-          });
+          }));
         }
+        if (instructions.length) {
+          // TODO: pick the one with the latest postdate?
+          const instructionVideoUri = instructions[0]['$'].link;
+          const queryInstructionVideo = SQL`
+            INSERT INTO video(uri)
+            VALUES (${instructionVideoUri})
+            ON CONFLICT DO NOTHING
+            RETURNING id;
+          `;
+          promises.push(pool.query(queryInstructionVideo).then(result => {
+            if (!result.rows.length) {
+              return;
+            }
+            const videoID = result.rows[0].id;
+            const queryInstruction = SQL`
+              INSERT INTO instruction(text_uri, video_id, boardgame_id)
+              VALUES ('', ${videoID}, ${boardGameID})
+              ON CONFLICT DO NOTHING;
+            `;
+            return pool.query(queryInstruction);
+          }));
+        }
+        return Promise.all(promises);
       }).then(() => bar.tick());
 
       // TODO: add publishers
