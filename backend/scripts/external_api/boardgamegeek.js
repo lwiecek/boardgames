@@ -32,6 +32,10 @@ pool.on('error', err =>
   console.error('idle client error', err.message, err.stack),
 );
 
+function getID(result) {
+  return !result.rows.length ? null : result.rows[0].id;
+}
+
 function processReviewsXML(boardGameID, reviews) {
   if (!reviews.length) {
     return Promise.resolve();
@@ -45,10 +49,10 @@ function processReviewsXML(boardGameID, reviews) {
     RETURNING id;
   `;
   return pool.query(queryVideo).then((result) => {
-    if (!result.rows.length) {
+    const reviewVideoID = getID(result);
+    if (!reviewVideoID) {
       return Promise.resolve();
     }
-    const reviewVideoID = result.rows[0].id;
     const queryUpdateBoardgame = SQL`
       UPDATE boardgame
       SET review_video_id=${reviewVideoID}
@@ -71,10 +75,10 @@ function processInstructionsXML(boardGameID, instructions) {
     RETURNING id;
   `;
   return pool.query(queryInstructionVideo).then(result => {
-    if (!result.rows.length) {
+    const videoID = getID(result);
+    if (!videoID) {
       return Promise.resolve();
     }
-    const videoID = result.rows[0].id;
     const queryInstruction = SQL`
       INSERT INTO instruction(text_uri, video_id, boardgame_id)
       VALUES ('', ${videoID}, ${boardGameID})
@@ -82,6 +86,40 @@ function processInstructionsXML(boardGameID, instructions) {
     `;
     return pool.query(queryInstruction);
   });
+}
+
+function processImagesXML(item, boardGameID) {
+  // assumes exactly one image exists
+  // and that it's box image
+  const imageUri = item.image[0];
+  // Skiping duplicates with ON CONFLICT DO NOTHING
+  const queryImage = SQL`
+    INSERT INTO image(
+      uri,
+      type,
+      boardgame_id
+    ) VALUES (
+      ${imageUri},
+      'box',
+      ${boardGameID}
+    )
+    ON CONFLICT DO NOTHING;
+  `;
+  return pool.query(queryImage);
+}
+
+function processVideosXML(item, boardGameID) {
+  if (!item.videos[0].video) {
+    return Promise.resolve();
+  }
+  const videos = item.videos[0].video.filter(elm =>
+    elm['$'].language === config.get('boardgamegeek.language'));
+  const reviews = videos.filter(elm => elm['$'].category === 'review');
+  const instructions = videos.filter(elm => elm['$'].category === 'instructional');
+  return Promise.all([
+    processReviewsXML(boardGameID, reviews),
+    processInstructionsXML(boardGameID, instructions)
+  ]);
 }
 
 function processBoardGameXML(id, result) {
@@ -131,38 +169,15 @@ function processBoardGameXML(id, result) {
   `;
   // TODO refactor with Promise.all ?
   // TODO use async / await ?
-  return pool.query(query).then((result) => {
-    if (!result.rows.length) {
-      return;
+  return pool.query(query).then(result => {
+    const boardGameID = getID(result);
+    if (!boardGameID) {
+      return Promise.resolve();
     }
-    const imageUri = item.image[0];
-    const boardGameID = result.rows[0].id;
-    // Skiping duplicates with ON CONFLICT DO NOTHING
-    const queryImage = SQL`
-      INSERT INTO image(
-        uri,
-        type,
-        boardgame_id
-      ) VALUES (
-        ${imageUri},
-        'box',
-        ${boardGameID}
-      )
-      ON CONFLICT DO NOTHING;
-    `;
-    return pool.query(queryImage).then(() => boardGameID);
-  }).then((boardGameID) => {
-    if (!item.videos[0].video) {
-      return;
-    }
-    const videos = item.videos[0].video.filter(elm =>
-      elm['$'].language === config.get('boardgamegeek.language'));
-    const reviews = videos.filter(elm => elm['$'].category === 'review');
-    const instructions = videos.filter(elm => elm['$'].category === 'instructional');
-    return Promise.all([
-      processReviewsXML(boardGameID, reviews),
-      processInstructionsXML(boardGameID, instructions)
-    ]);
+    Promise.all([
+      processImagesXML(item, boardGameID),
+      processVideosXML(item, boardGameID)
+    ])
   });
   // TODO: add publishers
   // TODO: add designer
