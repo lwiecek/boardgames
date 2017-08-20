@@ -183,7 +183,7 @@ function processBoardGameXML(id, result) {
   // TODO: add designer
 }
 
-function createOrUpdateBoardGame(id, bar) {
+function upsertBoardGame(id, bar) {
   const details = `type=boardgame&id=${id}&stats=1&videos=1`;
   request(`${config.get('boardgamegeek.api_url')}/thing?${details}`, (err, response, body) => {
     if (err) {
@@ -195,6 +195,18 @@ function createOrUpdateBoardGame(id, bar) {
   });
 }
 
+function upsertBoardGamesFromIDs(ids) {
+  const bar = new ProgressBar('loading sample board games [:bar] :percent (:current/:total) :etas', {
+    complete: '=',
+    incomplete: ' ',
+    width: 20,
+    total: ids.length
+  });
+  for (let id of ids) {
+    upsertBoardGame(id, bar);
+  }
+}
+
 if (command === 'sample_boardgames') {
   const sampleGeeklistID = 1;
   request(`${config.get('boardgamegeek.api_url')}/geeklist/${sampleGeeklistID}`, (err, response, body) => {
@@ -203,17 +215,12 @@ if (command === 'sample_boardgames') {
     }
     xml2js.parseString(body, function (err, result) {
       const boardGames = result.geeklist.item.filter(elm => elm['$'].subtype === 'boardgame');
-      const bar = new ProgressBar('loading sample board games [:bar] :percent (:current/:total) :etas', {
-          complete: '=',
-          incomplete: ' ',
-          width: 20,
-          total: boardGames.length
-      });
-      for (let item of boardGames) {
-        createOrUpdateBoardGame(item['$'].objectid, bar);
-      }
+      const ids = boardGames.map(elm => elm['$'].objectid);
+      upsertBoardGamesFromIDs(ids);
     });
   });
 } else if (command === 'load_boardgames') {
-  // TODO: determine range of board game ids somehow
+  // TODO: add throttling to preven 503 Service Unavailable
+  const ids = Array(config.get('boardgamegeek.max_boardgame_id')).fill().map((e, i) => i+1);
+  upsertBoardGamesFromIDs(ids);
 }

@@ -11,6 +11,7 @@
     },
     "boardgamegeek": {
         "api_url": "https://www.boardgamegeek.com/xmlapi2",
-        "language": "English"
+        "language": "English",
+        "max_boardgame_id": 15
     }
 }
