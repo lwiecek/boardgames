@@ -123,6 +123,10 @@ function processVideosXML(item, boardGameID) {
 }
 
 function processBoardGameXML(id, result) {
+  if (!result.items || !result.items.item) {
+    // Some board game ids return nothing
+    return Promise.reject(`Missing boardgame data, id: ${id}`);
+  }
   const item = result.items.item[0];
   const value = (elements) => elements[0]['$'].value;
   const getPrimaryName = (elements) => {
@@ -174,23 +178,33 @@ function processBoardGameXML(id, result) {
     if (!boardGameID) {
       return Promise.resolve();
     }
-    Promise.all([
+    return Promise.all([
       processImagesXML(item, boardGameID),
       processVideosXML(item, boardGameID)
-    ])
+    ]);
   });
   // TODO: add publishers
   // TODO: add designer
 }
 
 function upsertBoardGame(id, bar) {
-  const details = `type=boardgame&id=${id}&stats=1&videos=1`;
-  request(`${config.get('boardgamegeek.api_url')}/thing?${details}`, (err, response, body) => {
-    if (err) {
-      throw err;
-    }
-    xml2js.parseString(body, function (err, result) {
-      processBoardGameXML(id, result).then(() => bar.tick());
+  return new Promise((resolve, reject) => {
+    const details = `type=boardgame&id=${id}&stats=1&videos=1`;
+    request(`${config.get('boardgamegeek.api_url')}/thing?${details}`, (err, response, body) => {
+      if (err) {
+        throw err;
+      }
+      if (response.statusCode !== 200) {
+        reject(`Failed board game response: ${response.statusCode}, id: ${id}`);
+      }
+      xml2js.parseString(body, function (err, result) {
+        if (err) {
+          throw err;
+        }
+        processBoardGameXML(id, result)
+          .then(() => resolve(bar.tick()))
+          .catch((reason) => reject(reason));
+      });
     });
   });
 }
@@ -202,9 +216,20 @@ function upsertBoardGamesFromIDs(ids) {
     width: 20,
     total: ids.length
   });
+  let lazyPromises = [];
   for (let id of ids) {
-    upsertBoardGame(id, bar);
+    lazyPromises.push(() => upsertBoardGame(id, bar));
   }
+  let delay = (time) => (result) => new Promise(resolve => setTimeout(() => resolve(result), time));
+  lazyPromises.reduce(
+    (prev, curr) => {
+      return prev
+        .then(delay(config.get('boardgamegeek.requests_delay_in_ms')))
+        .then(curr)
+        .catch(reason => console.log(reason));
+    },
+    Promise.resolve()
+  );
 }
 
 if (command === 'sample_boardgames') {
