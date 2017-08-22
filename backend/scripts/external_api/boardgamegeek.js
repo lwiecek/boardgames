@@ -210,7 +210,7 @@ function upsertBoardGame(id, bar) {
 }
 
 function upsertBoardGamesFromIDs(ids) {
-  const bar = new ProgressBar('loading sample board games [:bar] :percent (:current/:total) :etas', {
+  const bar = new ProgressBar('loading board games [:bar] :percent (:current/:total) :etas', {
     complete: '=',
     incomplete: ' ',
     width: 20,
