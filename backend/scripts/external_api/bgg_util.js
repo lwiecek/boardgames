@@ -173,8 +173,9 @@ function processBoardGameXML(bggID, result) {
   // TODO: add designer
 }
 
-function parseBoardGameXML(id, bar, body, resolve, reject) {
-  xml2js.parseString(body, (err, result) => {
+// exported for testing purposes
+module.exports.parseBoardGameXML = function parseBoardGameXML(id, bar, body, resolve, reject) {
+  return xml2js.parseString(body, (err, result) => {
     if (err) {
       throw err;
     }
