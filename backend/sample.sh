@@ -4,4 +4,4 @@
 docker-compose build
 docker-compose run backend yarn db/recreate
 docker-compose run backend yarn db/migrate
-docker-compose run backend yarn external_api/boardgamegeek load_boardgames
+docker-compose run backend yarn external_api/boardgamegeek sample_boardgames
