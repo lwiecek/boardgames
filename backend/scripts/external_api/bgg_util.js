@@ -157,8 +157,6 @@ function processBoardGameXML(bggID, result) {
     ON CONFLICT DO NOTHING
     RETURNING id;
   `;
-  // TODO refactor with Promise.all ?
-  // TODO use async / await ?
   return pool.query(query).then(result => {
     const boardGameID = getID(result);
     if (!boardGameID) {
@@ -174,7 +172,7 @@ function processBoardGameXML(bggID, result) {
 }
 
 // exported for testing purposes
-module.exports.parseBoardGameXML = function parseBoardGameXML(id, bar, body, resolve, reject) {
+function parseBoardGameXML(id, bar, body, resolve, reject) {
   return xml2js.parseString(body, (err, result) => {
     if (err) {
       throw err;
@@ -184,6 +182,8 @@ module.exports.parseBoardGameXML = function parseBoardGameXML(id, bar, body, res
       .catch((reason) => reject(reason));
   });
 }
+
+module.exports.parseBoardGameXML = parseBoardGameXML;
 
 function upsertBoardGame(bggID, bar) {
   return new Promise((resolve, reject) => {
