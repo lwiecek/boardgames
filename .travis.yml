@@ -1,0 +1,11 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - cd backend
+  - docker-compose up
+
+script:
+  - docker-compose run backend yarn test
