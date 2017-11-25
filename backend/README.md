@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lwiecek/boardgames.svg?branch=master)](https://travis-ci.org/lwiecek/boardgames)
+
 # api.gameonboard.net
 
 Backend code. Work in progress, domain not configured yet.

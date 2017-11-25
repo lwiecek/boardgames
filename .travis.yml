@@ -6,7 +6,7 @@ services:
 before_install:
   - cd backend
   - docker-compose build
-  - docker-compose start
+  - docker-compose up
 
 script:
   - docker-compose run backend yarn test
