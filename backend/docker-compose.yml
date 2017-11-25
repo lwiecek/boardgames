@@ -16,4 +16,3 @@ services:
       - PGHOST=db
       - PGUSER=boardgames
       - PGPASSWORD=changeme
-
