@@ -1,16 +1,19 @@
-db:
-  restart: always
-  image: library/postgres:9.6.3
-  environment:
-    - POSTGRES_USER=boardgames
-    - POSTGRES_PASSWORD=changeme
-backend:
-  build: .
-  ports:
-    - "4000:4000"
-  links:
-    - db
-  environment:
-    - PGHOST=db
-    - PGUSER=boardgames
-    - PGPASSWORD=changeme
+version: '3.3'
+services:
+  db:
+    restart: always
+    image: library/postgres:9.6.3
+    environment:
+      - POSTGRES_USER=boardgames
+      - POSTGRES_PASSWORD=changeme
+  backend:
+    build: .
+    ports:
+      - "4000:4000"
+    links:
+      - db
+    environment:
+      - PGHOST=db
+      - PGUSER=boardgames
+      - PGPASSWORD=changeme
+

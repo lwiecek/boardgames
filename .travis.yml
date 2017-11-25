@@ -5,8 +5,10 @@ services:
 
 before_install:
   - cd backend
-  - docker-compose build
-  - docker-compose up
+  - docker-compose up -d
 
 script:
   - docker-compose run backend yarn test
+
+after_script:
+  - docker-compose down
