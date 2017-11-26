@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 'use strict';
 
-const config = require('config');
-const spawn = require('child_process').spawnSync;
+import config from 'config';
+import childProcess from 'child_process';
+const spawn = childProcess.spawnSync;
 
 const dbUsername = config.get('database.username');
 const dbPassword = config.get('database.password');

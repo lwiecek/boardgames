@@ -6,10 +6,10 @@
     "start": "babel-node src",
     "test": "eslint src && flow",
     "build": "neutrino build",
-    "db/migrate": "node scripts/db/migrate.js",
-    "db/recreate": "node scripts/db/recreate.js",
-    "db/load_fixtures": "node scripts/db/load_fixtures.js",
-    "external_api/boardgamegeek": "node scripts/external_api/boardgamegeek.js",
+    "db/migrate": "babel-node scripts/db/migrate.js",
+    "db/recreate": "babel-node scripts/db/recreate.js",
+    "db/load_fixtures": "babel-node scripts/db/load_fixtures.js",
+    "external_api/boardgamegeek": "babel-node scripts/external_api/boardgamegeek.js",
     "pretest": "NODE_ENV=test yarn db/recreate && NODE_ENV=test yarn db/migrate && NODE_ENV=test yarn db/load_fixtures"
   },
   "devDependencies": {

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 'use strict';
 
-const config = require('config');
-const pg = require('pg');
-const fs = require('fs');
+import config from 'config';
+import pg from 'pg';
+import fs from 'fs';
+
 const dbName = config.get('database.name');
 const pgConfig = {
   database: dbName
