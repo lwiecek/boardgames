@@ -4,6 +4,9 @@
 import config from 'config';
 import pg from 'pg';
 import fs from 'fs';
+import { promisify } from 'util';
+
+const readFileAsync = promisify(fs.readFile);
 
 const dbName = config.get('database.name');
 const pgConfig = {
@@ -16,27 +19,21 @@ if (process.env.NODE_ENV !== 'test') {
   process.exit(1);
 }
 
-fs.readFile('fixtures/test.sql', (err, data) => {
-  if (err) {
-    console.log('FAILURE');
-    throw err;
-  }
-  client.connect((err) => {
-    if (err) {
-      console.log('FAILURE');
-      throw err;
-    }
+async function loadFixtures() {
+  try {
     console.log(`loading fixtures in ${dbName}`);
-    client.query(data.toString()).then(() => {
-      client.end(function (err) {
-        if (err) {
-          console.log('FAILURE');
-          throw err;
-        }
-      });
-    }, (err) => {
-      console.log('FAILURE');
-      throw err;
-    });
-  });
-});
+    const data = await readFileAsync('fixtures/test.sql', 'utf8');
+    await client.connect();
+    await client.query(data);
+    await client.end();
+    console.log('SUCCESS');
+  } catch (err) {
+    console.log('FAILURE');
+    console.error(err)
+    process.exit(1);
+  }
+}
+
+loadFixtures();
+
+

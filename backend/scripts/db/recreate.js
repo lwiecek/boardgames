@@ -18,23 +18,24 @@ const client = new pg.Client({
 const dbName = config.get('database.name');
 
 async function recreate() {
-  await client.connect(); //async function (err) {
-  // Remove all connections to the test database - required before DROP
-  await client.query(
-    `SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname=$1`,
-    [dbName],
-  );
-  console.log(`dropping database ${dbName}`);
-  await client.query(`DROP DATABASE IF EXISTS ${dbName}`);
-  console.log(`creating database ${dbName}`);
-  await client.query(`CREATE DATABASE ${dbName}`);
-  await client.end();
+  try {
+    await client.connect();
+    // Remove all connections to the test database - required before DROP
+    await client.query(
+      `SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname=$1`,
+      [dbName],
+    );
+    console.log(`dropping database ${dbName}`);
+    await client.query(`DROP DATABASE IF EXISTS ${dbName}`);
+    console.log(`creating database ${dbName}`);
+    await client.query(`CREATE DATABASE ${dbName}`);
+    await client.end();
+    console.log('SUCCESS');
+  } catch (err) {
+    console.log('FAILURE');
+    console.error(err)
+    process.exit(1);
+  }
 }
 
-try {
-  recreate();
-  console.log('SUCCESS');
-} catch (err) {
-  console.log('FAILURE');
-  throw err;
-}
+recreate();
