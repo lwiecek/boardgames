@@ -3,35 +3,38 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "start": "neutrino start && node build/index.js",
+    "start": "babel-node src",
+    "test": "eslint src",
     "build": "neutrino build",
     "db/migrate": "node scripts/db/migrate.js",
     "db/recreate": "node scripts/db/recreate.js",
     "db/load_fixtures": "node scripts/db/load_fixtures.js",
     "external_api/boardgamegeek": "node scripts/external_api/boardgamegeek.js",
-    "pretest": "NODE_ENV=test yarn db/recreate && NODE_ENV=test yarn db/migrate && NODE_ENV=test yarn db/load_fixtures",
-    "test": "neutrino test"
+    "pretest": "NODE_ENV=test yarn db/recreate && NODE_ENV=test yarn db/migrate && NODE_ENV=test yarn db/load_fixtures"
   },
   "devDependencies": {
-    "neutrino": "^6.1.1",
-    "neutrino-preset-airbnb-base": "^6.1.1",
-    "neutrino-preset-jest": "^6.1.4",
-    "neutrino-preset-node": "^6.1.1"
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "eslint": "^4.12.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-react": "^7.4.0"
   },
   "dependencies": {
-    "config": "^1.26.1",
-    "express": "^4.15.3",
-    "express-graphql": "^0.6.6",
-    "graphql": "^0.10.3",
-    "node-pg-migrate": "^2.3.0",
-    "pg": "^6.4.0",
+    "config": "^1.28.1",
+    "express": "^4.16.2",
+    "express-graphql": "^0.6.11",
+    "graphql": "^0.11.7",
+    "node-pg-migrate": "^2.14.0",
+    "pg": "^7.4.0",
     "progress": "^2.0.0",
-    "request": "^2.81.0",
+    "request": "^2.83.0",
     "retry": "^0.10.1",
-    "slugify": "^1.2.1",
+    "slugify": "^1.2.6",
     "sql-template-strings": "^2.2.2",
     "supertest": "^3.0.0",
-    "xml2js": "^0.4.17",
-    "yargs": "^8.0.2"
+    "xml2js": "^0.4.19",
+    "yargs": "^10.0.3"
   }
 }

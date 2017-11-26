@@ -8,9 +8,7 @@ const pgConfig = {
   idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
 };
 const pool = new pg.Pool(pgConfig);
-pool.on('error', err =>
-  console.error('idle client error', err.message, err.stack),
-);
+pool.on('error', err => console.error('idle client error', err.message, err.stack));
 
 
 class Images {
@@ -36,10 +34,10 @@ function parseIntRange(rangeString) {
   // slice to remove brackets
   const array = rangeString.slice(1, rangeString.length - 1).split(',');
   if (array[0] && rangeString[0] === '(') {
-    array[0]++;
+    array[0] += 1;
   }
   if (array[1] && rangeString[rangeString.length - 1] === ')') {
-    array[1]--;
+    array[1] -= 1;
   }
   return { from: array[0] || null, to: array[1] || null };
 }
@@ -51,7 +49,7 @@ function getInstructions(boardgameID) {
     WHERE i.boardgame_id=${boardgameID}`;
   return pool.query(query).then((result) => {
     const instructions = [];
-    for (let i = 0; i < result.rows.length; i++) {
+    for (let i = 0; i < result.rows.length; i += 1) {
       const instruction = Object.assign({}, result.rows[i]);
       if (instruction.video_id) {
         instruction.video = { id: instruction.video_id, uri: instruction.video_uri };
@@ -102,7 +100,7 @@ function boardgamesResolver(publisherID, designerID) {
     }
     return pool.query(query).then((result) => {
       const boardgames = [];
-      for (let i = 0; i < result.rows.length; i++) {
+      for (let i = 0; i < result.rows.length; i += 1) {
         const boardgame = Object.assign({}, result.rows[i]);
         const images = new Images(boardgame.id);
         boardgame.photos = images.getByType('photo');
@@ -122,13 +120,15 @@ function boardgamesResolver(publisherID, designerID) {
           // TODO: Below is causing N+1 queries.
           // Optimize by passing all board game ids.
           // Make the first resolve evalute it lazily.
-          boardgame.publisher = () => publishersResolver(boardgame.publisher_id)().then(
-            publishers => publishers[0]);
+          boardgame.publisher = (
+            () => publishersResolver(boardgame.publisher_id)().then(publishers => publishers[0])
+          );
         }
         if (boardgame.designer_id) {
           // TODO: ditto
-          boardgame.designer = () => designersResolver(boardgame.designer_id)().then(
-            designers => designers[0]);
+          boardgame.designer = (
+            () => designersResolver(boardgame.designer_id)().then(designers => designers[0])
+          );
         }
         boardgames.push(boardgame);
       }
@@ -145,7 +145,7 @@ function designersResolver(designerID) {
   }
   return () => pool.query(query).then((result) => {
     const designers = [];
-    for (let i = 0; i < result.rows.length; i++) {
+    for (let i = 0; i < result.rows.length; i += 1) {
       const designer = Object.assign({}, result.rows[i]);
       // TODO: Below is causing N+1 queries.
       // Optimize by passing all designer ids.
@@ -165,7 +165,7 @@ function publishersResolver(publisherID) {
   }
   return () => pool.query(query).then((result) => {
     const publishers = [];
-    for (let i = 0; i < result.rows.length; i++) {
+    for (let i = 0; i < result.rows.length; i += 1) {
       const publisher = Object.assign({}, result.rows[i]);
       // TODO: See designersResolver
       publisher.boardgames = boardgamesResolver(publisher.id, null);

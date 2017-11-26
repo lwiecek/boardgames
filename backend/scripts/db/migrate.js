@@ -13,6 +13,6 @@ console.log(`migrating database ${dbName}`);
 let env = Object.create(process.env);
 env['DATABASE_URL'] = `postgres://${dbUsername}:${dbPassword}@${dbHost}/${dbName}`;
 
-const pgMigrate = spawn('./node_modules/.bin/pg-migrate', ['up'], {env: env});
+const pgMigrate = spawn('./node_modules/.bin/node-pg-migrate', ['up'], {env: env});
 console.log(`stderr: ${pgMigrate.stderr.toString()}`);
 console.log(`stdout: ${pgMigrate.stdout.toString()}`);
