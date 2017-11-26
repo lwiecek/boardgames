@@ -9,7 +9,7 @@ before_install:
 
 script:
   - docker-compose run backend ./scripts/wait-for-it.sh db:5432 -t 10
-  - docker-compose run backend yarn test
+  - docker-compose run backend bash -c "yarn test && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
 
 after_script:
   - docker-compose down
