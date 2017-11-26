@@ -1,3 +1,5 @@
+// @flow
+
 import config from 'config';
 import pg from 'pg';
 import SQL from 'sql-template-strings';
@@ -12,6 +14,9 @@ pool.on('error', err => console.error('idle client error', err.message, err.stac
 
 
 class Images {
+  boardgameID: string;
+  result: Promise<Array<{id: string, uri: string, type: string}>>;
+
   constructor(boardgameID) {
     this.boardgameID = boardgameID;
   }
@@ -67,7 +72,7 @@ function getVideo(videoID) {
 
 function boardgamesResolver(publisherID, designerID) {
   // TODO: ensure board games are sorted e.g. by ID
-  return (args) => {
+  return (args: {search?: string, ids?: string}) => {
     const fragments = [];
     const query = SQL`
       SELECT

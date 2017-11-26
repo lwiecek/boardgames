@@ -1,3 +1,5 @@
+// @flow
+
 import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import config from 'config';
