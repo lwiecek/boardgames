@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "start": "babel-node src",
-    "test": "eslint src && flow",
+    "test": "eslint src && flow && jest --coverage",
     "build": "neutrino build",
     "db/migrate": "babel-node scripts/db/migrate.js",
     "db/recreate": "babel-node scripts/db/recreate.js",
@@ -15,6 +15,7 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.0.2",
+    "babel-jest": "^21.2.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
     "eslint": "^4.12.0",
@@ -23,7 +24,8 @@
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.4.0",
-    "flow-bin": "^0.59.0"
+    "flow-bin": "^0.59.0",
+    "jest": "^21.2.1"
   },
   "dependencies": {
     "config": "^1.28.1",
@@ -40,5 +42,10 @@
     "supertest": "^3.0.0",
     "xml2js": "^0.4.19",
     "yargs": "^10.0.3"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**.{js,jsx}"
+    ]
   }
 }
