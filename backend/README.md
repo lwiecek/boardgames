@@ -3,8 +3,8 @@
 Backend code. Work in progress, domain not configured yet.
 
 ## Stack
-- GraphQL schema
-- Node.js server (configured with https://neutrino.js.org/)
+- GraphQL
+- Node.js
 - PostgreSQL
 
 ## Setup

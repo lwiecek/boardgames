@@ -5,7 +5,6 @@
   "scripts": {
     "start": "babel-node src",
     "test": "eslint src && flow && jest --coverage --forceExit",
-    "build": "neutrino build",
     "db/migrate": "babel-node scripts/db/migrate.js",
     "db/recreate": "babel-node scripts/db/recreate.js",
     "db/load_fixtures": "babel-node scripts/db/load_fixtures.js",
