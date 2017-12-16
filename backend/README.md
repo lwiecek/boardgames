@@ -21,6 +21,12 @@ Backend code. Work in progress, domain not configured yet.
 
 Server is running on http://localhost:4000/graphql
 
+## Production
+
+`docker-compose run backend yarn prod:build`
+`docker-compose build`
+`docker-compose run --service-ports backend yarn prod:start`
+
 ## Running tests
 `docker-compose run backend yarn test`
 

@@ -3,8 +3,11 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "start": "babel-node src",
+    "start": "yarn dev:start",
+    "dev:start": "babel-node src",
     "test": "eslint src && flow && jest --coverage --forceExit",
+    "prod:build": "rimraf lib && babel src -d lib --ignore .test.js",
+    "prod:start": "NODE_ENV=production pm2 start lib/index.js && pm2 logs",
     "db/migrate": "babel-node scripts/db/migrate.js",
     "db/recreate": "babel-node scripts/db/recreate.js",
     "db/load_fixtures": "babel-node scripts/db/load_fixtures.js",
@@ -24,14 +27,16 @@
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.4.0",
-    "flow-bin": "^0.59.0",
-    "jest": "^21.2.1"
+    "flow-bin": "^0.61.0",
+    "jest": "^21.2.1",
+    "pm2": "^2.9.1",
+    "rimraf": "^2.6.2"
   },
   "dependencies": {
     "config": "^1.28.1",
     "express": "^4.16.2",
     "express-graphql": "^0.6.11",
-    "graphql": "^0.11.7",
+    "graphql": "^0.11.0",
     "node-pg-migrate": "^2.14.0",
     "pg": "^7.4.0",
     "progress": "^2.0.0",

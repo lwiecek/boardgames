@@ -1,0 +1,6 @@
+{
+    "graphql": {
+        "endpoint": "/graphql",
+        "port": 4444
+    }
+}
