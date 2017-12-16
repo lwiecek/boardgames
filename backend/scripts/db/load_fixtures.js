@@ -1,6 +1,3 @@
-#!/usr/bin/env node
-'use strict';
-
 import config from 'config';
 import pg from 'pg';
 import fs from 'fs';
@@ -10,8 +7,8 @@ const readFileAsync = promisify(fs.readFile);
 
 const dbName = config.get('database.name');
 const pgConfig = {
-  database: dbName
-}
+  database: dbName,
+};
 const client = new pg.Client(pgConfig);
 
 if (process.env.NODE_ENV !== 'test') {
@@ -29,11 +26,9 @@ async function loadFixtures() {
     console.log('SUCCESS');
   } catch (err) {
     console.log('FAILURE');
-    console.error(err)
+    console.error(err);
     process.exit(1);
   }
 }
 
 loadFixtures();
-
-

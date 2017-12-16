@@ -1,6 +1,3 @@
-#!/usr/bin/env node
-'use strict';
-
 import config from 'config';
 import pg from 'pg';
 
@@ -13,7 +10,7 @@ import pg from 'pg';
 
 const client = new pg.Client({
   // use this database for connection purposes, boardgames may be missing
-  database: 'postgres'
+  database: 'postgres',
 });
 const dbName = config.get('database.name');
 
@@ -22,7 +19,7 @@ async function recreate() {
     await client.connect();
     // Remove all connections to the test database - required before DROP
     await client.query(
-      `SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname=$1`,
+      'SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname=$1',
       [dbName],
     );
     console.log(`dropping database ${dbName}`);
@@ -33,7 +30,7 @@ async function recreate() {
     console.log('SUCCESS');
   } catch (err) {
     console.log('FAILURE');
-    console.error(err)
+    console.error(err);
     process.exit(1);
   }
 }

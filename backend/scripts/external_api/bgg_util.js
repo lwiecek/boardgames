@@ -1,12 +1,10 @@
-'use strict';
-
-const config = require('config');
-const request = require('request');
-const xml2js = require('xml2js');
-const SQL = require('sql-template-strings').SQL;
-const slugify = require('slugify');
-const pg = require('pg');
-const ProgressBar = require('progress');
+import config from 'config';
+import request from 'request';
+import xml2js from 'xml2js';
+import { SQL } from 'sql-template-strings';
+import slugify from 'slugify';
+import pg from 'pg';
+import ProgressBar from 'progress';
 
 const pgConfig = {
   database: config.get('database.name'),
@@ -14,9 +12,7 @@ const pgConfig = {
   idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
 };
 const pool = new pg.Pool(pgConfig);
-pool.on('error', err =>
-  console.error('idle client error', err.message, err.stack),
-);
+pool.on('error', err => console.error('idle client error', err.message, err.stack));
 
 function getID(result) {
   return !result.rows.length ? null : result.rows[0].id;
@@ -27,7 +23,7 @@ function processReviewsXML(boardGameID, reviews) {
     return Promise.resolve();
   }
   // TODO: pick the one with the latest postdate?
-  const reviewVideoUri = reviews[0]['$'].link;
+  const reviewVideoUri = reviews[0].$.link;
   const queryVideo = SQL`
     INSERT INTO video(uri)
     VALUES (${reviewVideoUri})
@@ -53,14 +49,14 @@ function processInstructionsXML(boardGameID, instructions) {
     return Promise.resolve();
   }
   // TODO: pick the one with the latest postdate?
-  const instructionVideoUri = instructions[0]['$'].link;
+  const instructionVideoUri = instructions[0].$.link;
   const queryInstructionVideo = SQL`
     INSERT INTO video(uri)
     VALUES (${instructionVideoUri})
     ON CONFLICT DO NOTHING
     RETURNING id;
   `;
-  return pool.query(queryInstructionVideo).then(result => {
+  return pool.query(queryInstructionVideo).then((result) => {
     const videoID = getID(result);
     if (!videoID) {
       return Promise.resolve();
@@ -99,27 +95,25 @@ function processVideosXML(item, boardGameID) {
     return Promise.resolve();
   }
   const videos = item.videos[0].video.filter(elm =>
-    elm['$'].language === config.get('boardgamegeek.language'));
-  const reviews = videos.filter(elm => elm['$'].category === 'review');
-  const instructions = videos.filter(elm => elm['$'].category === 'instructional');
+    elm.$.language === config.get('boardgamegeek.language'));
+  const reviews = videos.filter(elm => elm.$.category === 'review');
+  const instructions = videos.filter(elm => elm.$.category === 'instructional');
   return Promise.all([
     processReviewsXML(boardGameID, reviews),
-    processInstructionsXML(boardGameID, instructions)
+    processInstructionsXML(boardGameID, instructions),
   ]);
 }
 
 function processBoardGameXML(bggID, result) {
   if (!result.items || !result.items.item) {
     // Some board game ids return nothing
-    return Promise.reject(`Missing boardgame data, bggID: ${bggID}`);
+    return Promise.reject(new Error(`Missing boardgame data, bggID: ${bggID}`));
   }
   const item = result.items.item[0];
-  const value = (elements) => elements[0]['$'].value;
-  const getPrimaryName = (elements) => {
-    return elements.filter(elm => elm['$'].type === 'primary')[0]['$'].value;
-  }
+  const value = elements => elements[0].$.value;
+  const getPrimaryName = elements => elements.filter(elm => elm.$.type === 'primary')[0].$.value;
   const name = getPrimaryName(item.name);
-  const slug = slugify(name, {lower: true});
+  const slug = slugify(name, { lower: true });
   const description = item.description[0];
   const ageRestriction = `[${value(item.minage)},]`;
   const playersNumber = `[${value(item.minplayers)},${value(item.maxplayers)}]`;
@@ -157,14 +151,14 @@ function processBoardGameXML(bggID, result) {
     ON CONFLICT DO NOTHING
     RETURNING id;
   `;
-  return pool.query(query).then(result => {
-    const boardGameID = getID(result);
+  return pool.query(query).then((queryResult) => {
+    const boardGameID = getID(queryResult);
     if (!boardGameID) {
       return Promise.resolve();
     }
     return Promise.all([
       processImagesXML(item, boardGameID),
-      processVideosXML(item, boardGameID)
+      processVideosXML(item, boardGameID),
     ]);
   });
   // TODO: add publishers
@@ -179,7 +173,7 @@ function parseBoardGameXML(id, bar, body, resolve, reject) {
     }
     processBoardGameXML(id, result)
       .then(() => resolve(bar.tick()))
-      .catch((reason) => reject(reason));
+      .catch(reason => reject(reason));
   });
 }
 
@@ -193,7 +187,7 @@ function upsertBoardGame(bggID, bar) {
         throw err;
       }
       if (response.statusCode !== 200) {
-        reject(`Failed board game response: ${response.statusCode}, bggID: ${bggID}`);
+        reject(new Error(`Failed board game response: ${response.statusCode}, bggID: ${bggID}`));
       }
       parseBoardGameXML(bggID, bar, body, resolve, reject);
     });
@@ -205,20 +199,16 @@ module.exports.upsertBoardGamesFromIDs = function upsertBoardGamesFromIDs(ids) {
     complete: '=',
     incomplete: ' ',
     width: 20,
-    total: ids.length
+    total: ids.length,
   });
-  let lazyPromises = [];
-  for (let id of ids) {
-    lazyPromises.push(() => upsertBoardGame(id, bar));
-  }
-  let delay = (time) => (result) => new Promise(resolve => setTimeout(() => resolve(result), time));
+  const lazyPromises = [];
+  ids.forEach(id => lazyPromises.push(() => upsertBoardGame(id, bar)));
+  const delay = time => result => new Promise(resolve => setTimeout(() => resolve(result), time));
   lazyPromises.reduce(
-    (prev, curr) => {
-      return prev
-        .then(delay(config.get('boardgamegeek.requests_delay_in_ms')))
-        .then(curr)
-        .catch(reason => console.log(reason));
-    },
-    Promise.resolve()
+    (prev, curr) => prev
+      .then(delay(config.get('boardgamegeek.requests_delay_in_ms')))
+      .then(curr)
+      .catch(reason => console.log(reason)),
+    Promise.resolve(),
   );
-}
+};
