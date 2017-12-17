@@ -16,7 +16,7 @@ function getID(result) {
 
 async function processReviewsXML(boardGameID, reviews) {
   if (!reviews.length) {
-    return null;
+    return;
   }
   // TODO: pick the one with the latest postdate?
   const reviewVideoUri = reviews[0].$.link;
@@ -28,19 +28,19 @@ async function processReviewsXML(boardGameID, reviews) {
   `;
   const reviewVideoID = getID(await pool.query(queryVideo));
   if (!reviewVideoID) {
-    return null;
+    return;
   }
   const queryUpdateBoardgame = SQL`
     UPDATE boardgame
     SET review_video_id=${reviewVideoID}
     WHERE id=${boardGameID}
   `;
-  return pool.query(queryUpdateBoardgame);
+  await pool.query(queryUpdateBoardgame);
 }
 
 async function processInstructionsXML(boardGameID, instructions) {
   if (!instructions.length) {
-    return null;
+    return;
   }
   // TODO: pick the one with the latest postdate?
   const instructionVideoUri = instructions[0].$.link;
@@ -52,14 +52,14 @@ async function processInstructionsXML(boardGameID, instructions) {
   `;
   const videoID = getID(await pool.query(queryInstructionVideo));
   if (!videoID) {
-    return null;
+    return;
   }
   const queryInstruction = SQL`
     INSERT INTO instruction(text_uri, video_id, boardgame_id)
     VALUES ('', ${videoID}, ${boardGameID})
     ON CONFLICT DO NOTHING;
   `;
-  return pool.query(queryInstruction);
+  await pool.query(queryInstruction);
 }
 
 async function processImagesXML(item, boardGameID) {
@@ -79,7 +79,7 @@ async function processImagesXML(item, boardGameID) {
     )
     ON CONFLICT DO NOTHING;
   `;
-  return pool.query(queryImage);
+  await pool.query(queryImage);
 }
 
 async function processVideosXML(item, boardGameID) {
