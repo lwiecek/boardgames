@@ -5,7 +5,7 @@ import { promisify } from 'util';
 
 const readFileAsync = promisify(fs.readFile);
 
-const dbName = config.get('database.name');
+const dbName = config.database.name;
 const pgConfig = {
   database: dbName,
 };

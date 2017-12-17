@@ -12,7 +12,7 @@ const client = new pg.Client({
   // use this database for connection purposes, boardgames may be missing
   database: 'postgres',
 });
-const dbName = config.get('database.name');
+const dbName = config.database.name;
 
 async function recreate() {
   try {

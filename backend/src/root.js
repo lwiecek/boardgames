@@ -1,17 +1,7 @@
 // @flow
 
-import config from 'config';
-import pg from 'pg';
 import SQL from 'sql-template-strings';
-
-const pgConfig = {
-  database: config.get('database.name'),
-  max: 10, // max number of clients in the pool
-  idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
-};
-const pool = new pg.Pool(pgConfig);
-pool.on('error', err => console.error('idle client error', err.message, err.stack));
-
+import pool from '../src/util/database';
 
 class Images {
   boardgameID: string;

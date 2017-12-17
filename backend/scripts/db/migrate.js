@@ -3,10 +3,10 @@ import childProcess from 'child_process';
 
 const spawn = childProcess.spawnSync;
 
-const dbUsername = config.get('database.username');
-const dbPassword = config.get('database.password');
-const dbHost = config.get('database.host');
-const dbName = config.get('database.name');
+const dbUsername = config.database.username;
+const dbPassword = config.database.password;
+const dbHost = config.database.host;
+const dbName = config.database.name;
 
 console.log(`migrating database ${dbName}`);
 const env = Object.create(process.env);

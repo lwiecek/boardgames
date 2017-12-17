@@ -1,9 +1,16 @@
-const request = require('supertest');
-const app = require('../src/index').default;
+import request from 'supertest';
+import config from 'config';
+import pg from 'pg';
+
+import app from '../src/index';
+import client from '../src/util/database';
 
 describe('boardgame', () => {
-  test('basic fields work', () => {
-    return request(app).post('/graphql').send(
+  // TODO TEST query board game with search terms
+  // TODO TEST query board game using list of IDs
+  test('basic fields work', async () => {
+    await client.query('BEGIN');
+    request(app).post('/graphql').send(
       {
         query: `{
           boardgames {
@@ -35,11 +42,13 @@ describe('boardgame', () => {
           }
         ]
       }
-    }).expect('Content-Type', 'application/json; charset=utf-8')
+    }).expect('Content-Type', 'application/json; charset=utf-8');
+    await client.query('ROLLBACK');
   });
 
-  test('nested fields work', () => {
-    return request(app).post('/graphql').send(
+  test('nested fields work', async () => {
+    await client.query('BEGIN');
+    request(app).post('/graphql').send(
       {
         query: `{
           boardgames {
@@ -61,10 +70,13 @@ describe('boardgame', () => {
         ]
       }
     }).expect('Content-Type', 'application/json; charset=utf-8');
+    await client.query('ROLLBACK');
   });
 
-  test('from to fields work', () => {
-    return request(app).post('/graphql').send(
+
+  test('from to fields work', async () => {
+    await client.query('BEGIN');
+    request(app).post('/graphql').send(
       {
         query: `{
           boardgames {
@@ -85,10 +97,12 @@ describe('boardgame', () => {
         ]
       }
     }).expect('Content-Type', 'application/json; charset=utf-8');
+    await client.query('ROLLBACK');
   });
 
-  test('media fields work', () => {
-    return request(app).post('/graphql').send(
+  test('media fields work', async () => {
+    await client.query('BEGIN');
+    request(app).post('/graphql').send(
       {
         query: `{
           boardgames {
@@ -139,5 +153,6 @@ describe('boardgame', () => {
         ]
       }
     }).expect('Content-Type', 'application/json; charset=utf-8');
+    await client.query('ROLLBACK');
   });
 });

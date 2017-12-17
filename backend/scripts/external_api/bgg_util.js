@@ -1,26 +1,22 @@
+import { promisify } from 'util';
 import config from 'config';
-import request from 'request';
+import request from 'superagent';
 import xml2js from 'xml2js';
 import { SQL } from 'sql-template-strings';
 import slugify from 'slugify';
-import pg from 'pg';
 import ProgressBar from 'progress';
 
-const pgConfig = {
-  database: config.get('database.name'),
-  max: 10, // max number of clients in the pool
-  idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
-};
-const pool = new pg.Pool(pgConfig);
-pool.on('error', err => console.error('idle client error', err.message, err.stack));
+import pool from '../../src/util/database';
+
+const xml2jsParseString = promisify(xml2js.parseString);
 
 function getID(result) {
   return !result.rows.length ? null : result.rows[0].id;
 }
 
-function processReviewsXML(boardGameID, reviews) {
+async function processReviewsXML(boardGameID, reviews) {
   if (!reviews.length) {
-    return Promise.resolve();
+    return null;
   }
   // TODO: pick the one with the latest postdate?
   const reviewVideoUri = reviews[0].$.link;
@@ -30,23 +26,21 @@ function processReviewsXML(boardGameID, reviews) {
     ON CONFLICT DO NOTHING
     RETURNING id;
   `;
-  return pool.query(queryVideo).then((result) => {
-    const reviewVideoID = getID(result);
-    if (!reviewVideoID) {
-      return Promise.resolve();
-    }
-    const queryUpdateBoardgame = SQL`
-      UPDATE boardgame
-      SET review_video_id=${reviewVideoID}
-      WHERE id=${boardGameID}
-    `;
-    return pool.query(queryUpdateBoardgame);
-  });
+  const reviewVideoID = getID(await pool.query(queryVideo));
+  if (!reviewVideoID) {
+    return null;
+  }
+  const queryUpdateBoardgame = SQL`
+    UPDATE boardgame
+    SET review_video_id=${reviewVideoID}
+    WHERE id=${boardGameID}
+  `;
+  return pool.query(queryUpdateBoardgame);
 }
 
-function processInstructionsXML(boardGameID, instructions) {
+async function processInstructionsXML(boardGameID, instructions) {
   if (!instructions.length) {
-    return Promise.resolve();
+    return null;
   }
   // TODO: pick the one with the latest postdate?
   const instructionVideoUri = instructions[0].$.link;
@@ -56,21 +50,19 @@ function processInstructionsXML(boardGameID, instructions) {
     ON CONFLICT DO NOTHING
     RETURNING id;
   `;
-  return pool.query(queryInstructionVideo).then((result) => {
-    const videoID = getID(result);
-    if (!videoID) {
-      return Promise.resolve();
-    }
-    const queryInstruction = SQL`
-      INSERT INTO instruction(text_uri, video_id, boardgame_id)
-      VALUES ('', ${videoID}, ${boardGameID})
-      ON CONFLICT DO NOTHING;
-    `;
-    return pool.query(queryInstruction);
-  });
+  const videoID = getID(await pool.query(queryInstructionVideo));
+  if (!videoID) {
+    return null;
+  }
+  const queryInstruction = SQL`
+    INSERT INTO instruction(text_uri, video_id, boardgame_id)
+    VALUES ('', ${videoID}, ${boardGameID})
+    ON CONFLICT DO NOTHING;
+  `;
+  return pool.query(queryInstruction);
 }
 
-function processImagesXML(item, boardGameID) {
+async function processImagesXML(item, boardGameID) {
   // assumes exactly one image exists
   // and that it's box image
   const imageUri = item.image[0];
@@ -90,24 +82,22 @@ function processImagesXML(item, boardGameID) {
   return pool.query(queryImage);
 }
 
-function processVideosXML(item, boardGameID) {
+async function processVideosXML(item, boardGameID) {
   if (!item.videos[0].video) {
-    return Promise.resolve();
+    return;
   }
   const videos = item.videos[0].video.filter(elm =>
-    elm.$.language === config.get('boardgamegeek.language'));
+    elm.$.language === config.boardgamegeek.language);
   const reviews = videos.filter(elm => elm.$.category === 'review');
   const instructions = videos.filter(elm => elm.$.category === 'instructional');
-  return Promise.all([
-    processReviewsXML(boardGameID, reviews),
-    processInstructionsXML(boardGameID, instructions),
-  ]);
+  await processReviewsXML(boardGameID, reviews);
+  await processInstructionsXML(boardGameID, instructions);
 }
 
-function processBoardGameXML(bggID, result) {
+async function processBoardGameXML(bggID, result) {
   if (!result.items || !result.items.item) {
     // Some board game ids return nothing
-    return Promise.reject(new Error(`Missing boardgame data, bggID: ${bggID}`));
+    throw new Error(`Missing boardgame data, bggID: ${bggID}`);
   }
   const item = result.items.item[0];
   const value = elements => elements[0].$.value;
@@ -151,64 +141,54 @@ function processBoardGameXML(bggID, result) {
     ON CONFLICT DO NOTHING
     RETURNING id;
   `;
-  return pool.query(query).then((queryResult) => {
-    const boardGameID = getID(queryResult);
-    if (!boardGameID) {
-      return Promise.resolve();
-    }
-    return Promise.all([
-      processImagesXML(item, boardGameID),
-      processVideosXML(item, boardGameID),
-    ]);
-  });
+  const boardGameID = getID(await pool.query(query));
+  if (!boardGameID) {
+    return;
+  }
+  await processImagesXML(item, boardGameID);
+  await processVideosXML(item, boardGameID);
   // TODO: add publishers
   // TODO: add designer
 }
 
-// exported for testing purposes
-function parseBoardGameXML(id, bar, body, resolve, reject) {
-  return xml2js.parseString(body, (err, result) => {
-    if (err) {
-      throw err;
-    }
-    processBoardGameXML(id, result)
-      .then(() => resolve(bar.tick()))
-      .catch(reason => reject(reason));
+async function upsertBoardGame(bggID, bar) {
+  const response = await request.get(`${config.boardgamegeek.api_url}/thing`).query({
+    type: 'boardgame',
+    id: bggID,
+    stats: 1,
+    videos: 1,
   });
+  if (response.statusCode !== 200) {
+    throw new Error(`Failed board game response: ${response.statusCode}, bggID: ${bggID}`);
+  }
+  const result = await xml2jsParseString(response.text);
+  await processBoardGameXML(bggID, result);
+  bar.tick();
 }
 
-module.exports.parseBoardGameXML = parseBoardGameXML;
-
-function upsertBoardGame(bggID, bar) {
-  return new Promise((resolve, reject) => {
-    const details = `type=boardgame&id=${bggID}&stats=1&videos=1`;
-    request(`${config.get('boardgamegeek.api_url')}/thing?${details}`, (err, response, body) => {
-      if (err) {
-        throw err;
-      }
-      if (response.statusCode !== 200) {
-        reject(new Error(`Failed board game response: ${response.statusCode}, bggID: ${bggID}`));
-      }
-      parseBoardGameXML(bggID, bar, body, resolve, reject);
-    });
-  });
+async function sleep(miliseconds) {
+  return new Promise(resolve => setTimeout(resolve, miliseconds));
 }
 
-module.exports.upsertBoardGamesFromIDs = function upsertBoardGamesFromIDs(ids) {
+async function upsertBoardGamesFromIDs(ids) {
   const bar = new ProgressBar('loading board games [:bar] :percent (:current/:total) :etas', {
     complete: '=',
     incomplete: ' ',
     width: 20,
     total: ids.length,
   });
-  const lazyPromises = [];
-  ids.forEach(id => lazyPromises.push(() => upsertBoardGame(id, bar)));
-  const delay = time => result => new Promise(resolve => setTimeout(() => resolve(result), time));
-  lazyPromises.reduce(
-    (prev, curr) => prev
-      .then(delay(config.get('boardgamegeek.requests_delay_in_ms')))
-      .then(curr)
-      .catch(reason => console.log(reason)),
-    Promise.resolve(),
-  );
-};
+  for (let i = 0; i < ids.length; i += 1) {
+    const id = ids[i];
+    try {
+      // TODO implement real rate limiting
+      // eslint-disable-next-line no-await-in-loop
+      await sleep(config.boardgamegeek.requests_delay_in_ms);
+      // eslint-disable-next-line no-await-in-loop
+      await upsertBoardGame(id, bar);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+}
+
+export default upsertBoardGamesFromIDs;

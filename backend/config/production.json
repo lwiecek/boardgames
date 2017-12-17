@@ -2,5 +2,6 @@
     "graphql": {
         "endpoint": "/graphql",
         "port": 4444
-    }
+    },
+    "ENV": "production"
 }

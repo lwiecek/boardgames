@@ -1,5 +1,12 @@
 {
     "database": {
         "name": "test_boardgames"
-    }
+    },
+    "boardgamegeek": {
+        "api_url": "https://www.example.com/mocked_bgg_api",
+        "language": "English",
+        "max_boardgame_id": 0,
+        "requests_delay_in_ms": 0
+    },
+    "ENV": "test"
 }
