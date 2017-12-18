@@ -1,9 +1,11 @@
-const request = require('supertest');
-const app = require('../src/index').default;
+import request from 'supertest';
+import app from '../src/index';
+import client from '../src/util/database';
 
 describe('designer', () => {
-  test('basic fields work', () => {
-    return request(app).post('/graphql').send(
+  test('basic fields work', async () => {
+    await client.query('BEGIN');
+    request(app).post('/graphql').send(
       {
         query: `{
           designers {
@@ -18,9 +20,11 @@ describe('designer', () => {
         'designers': []
       }
     }).expect('Content-Type', 'application/json; charset=utf-8');
+    await client.query('ROLLBACK');
   });
-  test('nested fields work', () => {
-    return request(app).post('/graphql').send(
+  test('nested fields work', async () => {
+    await client.query('BEGIN');
+    request(app).post('/graphql').send(
       {
         query: `{
           designers {
@@ -33,5 +37,6 @@ describe('designer', () => {
         'designers': []
       }
     }).expect('Content-Type', 'application/json; charset=utf-8');
+    await client.query('ROLLBACK');
   });
 });

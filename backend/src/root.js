@@ -3,26 +3,6 @@
 import SQL from 'sql-template-strings';
 import pool from '../src/util/database';
 
-class Images {
-  boardgameID: string;
-  result: Promise<Array<{id: string, uri: string, type: string}>>;
-
-  constructor(boardgameID) {
-    this.boardgameID = boardgameID;
-  }
-  get() {
-    if (this.result) {
-      return this.result;
-    }
-    const query = SQL`SELECT id, uri, type FROM image WHERE boardgame_id=${this.boardgameID}`;
-    this.result = pool.query(query).then(result => result.rows);
-    return this.result;
-  }
-  getByType(type) {
-    return this.get().then(imgs => imgs.filter(img => img.type === type));
-  }
-}
-
 function parseIntRange(rangeString) {
   // There are four ways range can be returned from Postgres [a,b], (a,b), (a,b], [a,b)
   // However, this function always returns inclusive range [a,b]
@@ -37,32 +17,42 @@ function parseIntRange(rangeString) {
   return { from: array[0] || null, to: array[1] || null };
 }
 
-function getInstructions(boardgameID) {
+async function getImages(boardgameID) {
+  const query = SQL`SELECT id, uri, type FROM image WHERE boardgame_id=${boardgameID}`;
+  const allImages = (await pool.query(query)).rows;
+  return {
+    photos: allImages.filter(img => img.type === 'photo'),
+    cover: allImages.filter(img => img.type === 'cover')[0],
+    box: allImages.filter(img => img.type === 'box')[0],
+    table: allImages.filter(img => img.type === 'table')[0],
+  };
+}
+
+async function getInstructions(boardgameID) {
   const query = SQL`
     SELECT i.id, i.text_uri, v.id video_id, v.uri video_uri FROM instruction i
     LEFT OUTER JOIN video v ON (i.video_id = v.id)
     WHERE i.boardgame_id=${boardgameID}`;
-  return pool.query(query).then((result) => {
-    const instructions = [];
-    for (let i = 0; i < result.rows.length; i += 1) {
-      const instruction = Object.assign({}, result.rows[i]);
-      if (instruction.video_id) {
-        instruction.video = { id: instruction.video_id, uri: instruction.video_uri };
-      }
-      instructions.push(instruction);
+  const result = await pool.query(query);
+  const instructions = [];
+  for (let i = 0; i < result.rows.length; i += 1) {
+    const instruction = Object.assign({}, result.rows[i]);
+    if (instruction.video_id) {
+      instruction.video = { id: instruction.video_id, uri: instruction.video_uri };
     }
-    return instructions;
-  });
+    instructions.push(instruction);
+  }
+  return instructions;
 }
 
-function getVideo(videoID) {
+async function getVideo(videoID) {
   const query = SQL`SELECT id, uri FROM video WHERE id=${videoID}`;
-  return pool.query(query).then(result => result.rows[0]);
+  return (await pool.query(query)).rows[0];
 }
 
 function boardgamesResolver(publisherID, designerID) {
   // TODO: ensure board games are sorted e.g. by ID
-  return (args: {search?: string, ids?: string}) => {
+  return async (args: {search?: string, ids?: string}) => {
     const fragments = [];
     const query = SQL`
       SELECT
@@ -93,42 +83,37 @@ function boardgamesResolver(publisherID, designerID) {
         query.append(val);
       });
     }
-    return pool.query(query).then((result) => {
-      const boardgames = [];
-      for (let i = 0; i < result.rows.length; i += 1) {
-        const boardgame = Object.assign({}, result.rows[i]);
-        const images = new Images(boardgame.id);
-        boardgame.photos = images.getByType('photo');
-        boardgame.cover_image = images.getByType('cover').then(imgs => imgs[0]);
-        boardgame.box_image = images.getByType('box').then(imgs => imgs[0]);
-        boardgame.table_image = images.getByType('table').then(imgs => imgs[0]);
-        boardgame.age_restriction = parseIntRange(boardgame.age_restriction);
-        boardgame.players_number = parseIntRange(boardgame.players_number);
-        boardgame.playing_time = parseIntRange(boardgame.playing_time);
-        boardgame.bgg_rating = boardgame.bgg_rating || '';
-        boardgame.bgg_id = boardgame.bgg_id || '';
-        boardgame.instructions = () => getInstructions(boardgame.id);
-        if (boardgame.review_video_id) {
-          boardgame.review_video = () => getVideo(boardgame.review_video_id);
-        }
-        if (boardgame.publisher_id) {
-          // TODO: Below is causing N+1 queries.
-          // Optimize by passing all board game ids.
-          // Make the first resolve evalute it lazily.
-          boardgame.publisher = (
-            () => publishersResolver(boardgame.publisher_id)().then(publishers => publishers[0])
-          );
-        }
-        if (boardgame.designer_id) {
-          // TODO: ditto
-          boardgame.designer = (
-            () => designersResolver(boardgame.designer_id)().then(designers => designers[0])
-          );
-        }
-        boardgames.push(boardgame);
+    const result = await pool.query(query);
+    const boardgames = [];
+    await Promise.all(result.rows.map(async (row) => {
+      const boardgame = Object.assign({}, row);
+      const images = await getImages(boardgame.id);
+      boardgame.photos = images.photos;
+      boardgame.cover_image = images.cover;
+      boardgame.box_image = images.box;
+      boardgame.table_image = images.table;
+      boardgame.age_restriction = parseIntRange(boardgame.age_restriction);
+      boardgame.players_number = parseIntRange(boardgame.players_number);
+      boardgame.playing_time = parseIntRange(boardgame.playing_time);
+      boardgame.bgg_rating = boardgame.bgg_rating || '';
+      boardgame.bgg_id = boardgame.bgg_id || '';
+      boardgame.instructions = async () => getInstructions(boardgame.id);
+      if (boardgame.review_video_id) {
+        boardgame.review_video = async () => getVideo(boardgame.review_video_id);
       }
-      return boardgames;
-    });
+      if (boardgame.publisher_id) {
+        // TODO: Below is causing N+1 queries.
+        // Optimize by passing all board game ids.
+        // Make the first resolve evalute it lazily.
+        boardgame.publisher = async () => (await publishersResolver(boardgame.publisher_id)())[0];
+      }
+      if (boardgame.designer_id) {
+        // TODO: ditto
+        boardgame.designer = async () => (await designersResolver(boardgame.designer_id)())[0];
+      }
+      boardgames.push(boardgame);
+    }));
+    return boardgames;
   };
 }
 
@@ -138,7 +123,8 @@ function designersResolver(designerID) {
   if (designerID) {
     query.append(SQL` WHERE id=${designerID}`);
   }
-  return () => pool.query(query).then((result) => {
+  return async () => {
+    const result = await pool.query(query);
     const designers = [];
     for (let i = 0; i < result.rows.length; i += 1) {
       const designer = Object.assign({}, result.rows[i]);
@@ -149,7 +135,7 @@ function designersResolver(designerID) {
       designers.push(designer);
     }
     return designers;
-  });
+  };
 }
 
 function publishersResolver(publisherID) {
@@ -158,7 +144,8 @@ function publishersResolver(publisherID) {
   if (publisherID) {
     query.append(SQL` WHERE id=${publisherID}`);
   }
-  return () => pool.query(query).then((result) => {
+  return async () => {
+    const result = await pool.query(query);
     const publishers = [];
     for (let i = 0; i < result.rows.length; i += 1) {
       const publisher = Object.assign({}, result.rows[i]);
@@ -167,7 +154,7 @@ function publishersResolver(publisherID) {
       publishers.push(publisher);
     }
     return publishers;
-  });
+  };
 }
 
 const root = {

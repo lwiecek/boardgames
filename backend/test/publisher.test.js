@@ -1,9 +1,13 @@
-const request = require('supertest');
-const app = require('../src/index').default;
+import request from 'supertest';
+
+import app from '../src/index';
+import client from '../src/util/database';
+
 
 describe('publisher', () => {
-  test('basic fields work', () => {
-    return request(app).post('/graphql').send(
+  test('basic fields work', async () => {
+    await client.query('BEGIN');
+    request(app).post('/graphql').send(
       {
         query: `{
           publishers {
@@ -24,9 +28,11 @@ describe('publisher', () => {
         ]
       }
     }).expect('Content-Type', 'application/json; charset=utf-8');
+    await client.query('ROLLBACK');
   });
-  test('nested fields work', () => {
-    return request(app).post('/graphql').send(
+  test('nested fields work', async () => {
+    await client.query('BEGIN');
+    request(app).post('/graphql').send(
       {
         query: `{
           publishers {
@@ -46,5 +52,6 @@ describe('publisher', () => {
         ]
       }
     }).expect('Content-Type', 'application/json; charset=utf-8');
+    await client.query('ROLLBACK');
   });
 });
