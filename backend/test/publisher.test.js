@@ -7,7 +7,7 @@ import client from '../src/util/database';
 describe('publisher', () => {
   test('basic fields work', async () => {
     await client.query('BEGIN');
-    request(app).post('/graphql').send(
+    await request(app).post('/graphql').send(
       {
         query: `{
           publishers {
@@ -32,7 +32,7 @@ describe('publisher', () => {
   });
   test('nested fields work', async () => {
     await client.query('BEGIN');
-    request(app).post('/graphql').send(
+    await request(app).post('/graphql').send(
       {
         query: `{
           publishers {

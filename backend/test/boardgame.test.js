@@ -10,7 +10,7 @@ describe('boardgame', () => {
   // TODO TEST query board game using list of IDs
   test('basic fields work', async () => {
     await client.query('BEGIN');
-    request(app).post('/graphql').send(
+    await request(app).post('/graphql').send(
       {
         query: `{
           boardgames {
@@ -48,7 +48,7 @@ describe('boardgame', () => {
 
   test('nested fields work', async () => {
     await client.query('BEGIN');
-    request(app).post('/graphql').send(
+    await request(app).post('/graphql').send(
       {
         query: `{
           boardgames {
@@ -76,7 +76,7 @@ describe('boardgame', () => {
 
   test('from to fields work', async () => {
     await client.query('BEGIN');
-    request(app).post('/graphql').send(
+    await request(app).post('/graphql').send(
       {
         query: `{
           boardgames {
@@ -102,7 +102,7 @@ describe('boardgame', () => {
 
   test('media fields work', async () => {
     await client.query('BEGIN');
-    request(app).post('/graphql').send(
+    await request(app).post('/graphql').send(
       {
         query: `{
           boardgames {

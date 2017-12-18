@@ -5,7 +5,7 @@ import client from '../src/util/database';
 describe('designer', () => {
   test('basic fields work', async () => {
     await client.query('BEGIN');
-    request(app).post('/graphql').send(
+    await request(app).post('/graphql').send(
       {
         query: `{
           designers {
@@ -24,7 +24,7 @@ describe('designer', () => {
   });
   test('nested fields work', async () => {
     await client.query('BEGIN');
-    request(app).post('/graphql').send(
+    await request(app).post('/graphql').send(
       {
         query: `{
           designers {
