@@ -2,7 +2,7 @@ import nock from 'nock';
 import config from 'config';
 import pg from 'pg';
 
-import upsertBoardGamesFromIDs from '../../scripts/external_api/bgg_util';
+import { upsertBoardGamesFromIDs } from '../../scripts/external_api/bgg_util';
 import client from '../../src/util/database';
 
 

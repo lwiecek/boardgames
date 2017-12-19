@@ -11,8 +11,9 @@
     },
     "boardgamegeek": {
         "api_url": "https://www.boardgamegeek.com/xmlapi2",
+        "board_games_list_url": "https://boardgamegeek.com/browse/boardgame",
         "language": "English",
-        "max_boardgame_id": 100,
+        "number_of_pages": 1,
         "requests_delay_in_ms": 5000
     },
     "ENV": "development"

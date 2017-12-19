@@ -181,6 +181,8 @@ async function upsertBoardGamesFromIDs(ids) {
     const id = ids[i];
     try {
       // TODO implement real rate limiting
+      // await in a for loop is fine in this case
+      // since this needs to run sequentially due to rate limiting
       // eslint-disable-next-line no-await-in-loop
       await sleep(config.boardgamegeek.requests_delay_in_ms);
       // eslint-disable-next-line no-await-in-loop
@@ -191,4 +193,4 @@ async function upsertBoardGamesFromIDs(ids) {
   }
 }
 
-export default upsertBoardGamesFromIDs;
+export { upsertBoardGamesFromIDs, sleep };

@@ -3,7 +3,7 @@ import config from 'config';
 import request from 'superagent';
 import xml2js from 'xml2js';
 
-import upsertBoardGamesFromIDs from './bgg_util';
+import { sleep, upsertBoardGamesFromIDs } from './bgg_util';
 
 const { argv } = require('yargs')
   .demandCommand(1)
@@ -32,7 +32,26 @@ async function sampleBoardGames() {
 }
 
 async function loadBoardGames() {
-  const ids = Array(config.boardgamegeek.max_boardgame_id).fill().map((e, i) => i + 1);
+  // ¯\_(ツ)_/¯
+  // BGG XML API (v1 or v2) does not suport listing all (or at least popular) games
+  // As a workaround I am scraping board games list page for several consecutive pages
+  // to get board game ids using regexp.
+  let urlFragmentsSet = new Set();
+  for (let i = 0; i < config.boardgamegeek.number_of_pages; i += 1) {
+    const page = `${config.boardgamegeek.board_games_list_url}/page/${i}`;
+    // await in a for loop is fine in this case
+    // since this needs to run sequentially due to rate limiting
+    // eslint-disable-next-line no-await-in-loop
+    await sleep(config.boardgamegeek.requests_delay_in_ms);
+    // eslint-disable-next-line no-await-in-loop
+    const response = await request.get(page);
+    const urlFragments = response.text.match(/boardgame\/(\d+)\//g);
+    urlFragmentsSet = new Set([...urlFragmentsSet, ...urlFragments]);
+  }
+  const ids = [];
+  urlFragmentsSet.forEach((frag) => {
+    ids.push(frag.match(/\d+/g)[0]);
+  });
   await upsertBoardGamesFromIDs(ids);
 }
 
