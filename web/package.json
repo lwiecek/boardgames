@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "license": "MIT",
   "dependencies": {
+    "compression": "^1.7.1",
+    "express": "^4.16.2",
     "immutable": "^3.8.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
@@ -12,8 +14,11 @@
     "redux-thunk": "^2.2.0"
   },
   "scripts": {
-    "start": "babel-node src",
-    "test": "eslint src && flow && jest --coverage"
+    "start": "yarn dev:start",
+    "dev:start": "nodemon --ignore lib --exec babel-node src/server",
+    "test": "eslint src && flow && jest --coverage",
+    "prod:build": "rimraf lib && babel src -d lib --ignore .test.js",
+    "prod:start": "NODE_ENV=production pm2 start lib/server && pm2 logs"
   },
   "browserslist": [
     "> 1%"
@@ -32,6 +37,9 @@
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.4.0",
     "flow-bin": "^0.61.0",
-    "jest": "^22.0.4"
+    "jest": "^22.0.4",
+    "nodemon": "^1.14.3",
+    "pm2": "^2.9.1",
+    "rimraf": "^2.6.2"
   }
 }
