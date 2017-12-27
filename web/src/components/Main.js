@@ -1,11 +1,11 @@
-import React from 'react';
+// import React from 'react';
 
-import BoardGamesContainer from './BoardGames';
+// import BoardGamesContainer from './BoardGames';
 
-const Main = () => (
-  <div>
-    <BoardGamesContainer />
-  </div>
-);
+// const Main = () => (
+//   <div>
+//     <BoardGamesContainer />
+//   </div>
+// );
 
-export default Main;
+// export default Main;
