@@ -17,38 +17,32 @@ afterEach(() => {
   fetchMock.restore();
 });
 
-test('sayHelloAsync success', () => {
+test('sayHelloAsync success', async () => {
   fetchMock.get(helloEndpointRoute(666), { serverMessage: 'Async hello success' });
   const store = mockStore();
-  return store.dispatch(sayHelloAsync(666))
-    .then(() => {
-      expect(store.getActions()).toEqual([
-        sayHelloAsyncRequest(),
-        sayHelloAsyncSuccess('Async hello success'),
-      ]);
-    });
+  await store.dispatch(sayHelloAsync(666));
+  expect(store.getActions()).toEqual([
+    sayHelloAsyncRequest(),
+    sayHelloAsyncSuccess('Async hello success'),
+  ]);
 });
 
-test('sayHelloAsync 404', () => {
+test('sayHelloAsync 404', async () => {
   fetchMock.get(helloEndpointRoute(666), 404);
   const store = mockStore();
-  return store.dispatch(sayHelloAsync(666))
-    .then(() => {
-      expect(store.getActions()).toEqual([
-        sayHelloAsyncRequest(),
-        sayHelloAsyncFailure(),
-      ]);
-    });
+  await store.dispatch(sayHelloAsync(666));
+  expect(store.getActions()).toEqual([
+    sayHelloAsyncRequest(),
+    sayHelloAsyncFailure(),
+  ]);
 });
 
-test('sayHelloAsync data error', () => {
+test('sayHelloAsync data error', async () => {
   fetchMock.get(helloEndpointRoute(666), {});
   const store = mockStore();
-  return store.dispatch(sayHelloAsync(666))
-    .then(() => {
-      expect(store.getActions()).toEqual([
-        sayHelloAsyncRequest(),
-        sayHelloAsyncFailure(),
-      ]);
-    });
+  await store.dispatch(sayHelloAsync(666));
+  expect(store.getActions()).toEqual([
+    sayHelloAsyncRequest(),
+    sayHelloAsyncFailure(),
+  ]);
 });
