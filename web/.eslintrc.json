@@ -11,6 +11,9 @@
     "flowtype",
     "compat"
   ],
+  "settings": {
+    "polyfills": ["fetch"]
+  },
   "rules": {
     "compat/compat": 2
   }

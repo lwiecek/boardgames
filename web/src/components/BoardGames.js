@@ -4,7 +4,8 @@
 
 // class BoardGames extends React.Component {
 //   static makeSearchQuery(search) {
-//     const query = 'query Query($search: String) { boardgames(search: $search) { id, name, slug } }';
+//     const query = 'query
+//        Query($search: String) { boardgames(search: $search) { id, name, slug } }';
 //     return {
 //       query,
 //       variables: { search },
@@ -37,7 +38,8 @@
 //         {gamesList}
 //         </ul>
 //         <input ref={ (node) => { search = node; } }></input>
-//         <button onClick={() => { dispatch(getGraph(BoardGames.makeSearchQuery(search.value))); } }>
+//         <button onClick={() => {
+//             dispatch(getGraph(BoardGames.makeSearchQuery(search.value))); } }>
 //           query
 //         </button>
 //       </div>
