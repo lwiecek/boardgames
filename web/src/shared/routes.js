@@ -2,7 +2,7 @@
 
 
 export const HOME_PAGE_ROUTE = '/';
-export const HELLO_PAGE_ROUTE = '/hello';
-export const HELLO_ASYNC_PAGE_ROUTE = '/hello-async';
+export const ALL_GAMES_ROUTE = '/all';
+export const GAME_DETAIL_PAGE_ROUTE = '/:boardgame';
 
 export const helloEndpointRoute = (num: ?number) => `/ajax/hello/${num || ':num'}`;

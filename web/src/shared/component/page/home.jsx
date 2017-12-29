@@ -3,6 +3,8 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 
+import Title from '../title';
+import Nav from '../nav';
 import { APP_NAME } from '../../config';
 
 const HomePage = () => (
@@ -13,7 +15,8 @@ const HomePage = () => (
         { property: 'og:title', content: APP_NAME },
       ]}
     />
-    <h1>{APP_NAME}</h1>
+    <Title />
+    <Nav />
   </div>
 );
 

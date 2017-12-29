@@ -9,8 +9,8 @@ import {
 
 import {
   HOME_PAGE_ROUTE,
-  HELLO_PAGE_ROUTE,
-  HELLO_ASYNC_PAGE_ROUTE,
+  ALL_GAMES_ROUTE,
+  GAME_DETAIL_PAGE_ROUTE,
   helloEndpointRoute,
 } from '../shared/routes';
 
@@ -21,11 +21,11 @@ export default (app: Object) => {
     res.send(renderApp(req.url, homePage()));
   });
 
-  app.get(HELLO_PAGE_ROUTE, (req, res) => {
+  app.get(ALL_GAMES_ROUTE, (req, res) => {
     res.send(renderApp(req.url, helloPage()));
   });
 
-  app.get(HELLO_ASYNC_PAGE_ROUTE, (req, res) => {
+  app.get(GAME_DETAIL_PAGE_ROUTE, (req, res) => {
     res.send(renderApp(req.url, helloAsyncPage()));
   });
 
