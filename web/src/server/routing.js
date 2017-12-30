@@ -2,16 +2,14 @@
 
 import {
   homePage,
-  helloPage,
-  helloAsyncPage,
-  helloEndpoint,
+  allGamesPage,
+  gameDetailPage,
 } from './controller';
 
 import {
   HOME_PAGE_ROUTE,
   ALL_GAMES_ROUTE,
   GAME_DETAIL_PAGE_ROUTE,
-  helloEndpointRoute,
 } from '../shared/routes';
 
 import renderApp from './render-app';
@@ -21,16 +19,15 @@ export default (app: Object) => {
     res.send(renderApp(req.url, homePage()));
   });
 
-  app.get(ALL_GAMES_ROUTE, (req, res) => {
-    res.send(renderApp(req.url, helloPage()));
+  app.get(ALL_GAMES_ROUTE, async (req, res) => {
+    const data = await allGamesPage();
+    // console.log('DUPA');
+    // console.log(data);
+    res.send(renderApp(req.url, data));
   });
 
   app.get(GAME_DETAIL_PAGE_ROUTE, (req, res) => {
-    res.send(renderApp(req.url, helloAsyncPage()));
-  });
-
-  app.get(helloEndpointRoute(), (req, res) => {
-    res.json(helloEndpoint(req.params.num));
+    res.send(renderApp(req.url, gameDetailPage()));
   });
 
   app.get('*', (req, res) => {

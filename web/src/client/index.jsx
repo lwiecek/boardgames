@@ -13,7 +13,7 @@ import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 
 import App from '../shared/app';
-import helloReducer from '../shared/reducer/hello';
+import boardGamesReducer from '../shared/reducer/board-games';
 import { APP_CONTAINER_SELECTOR } from '../shared/config';
 import { isProd } from '../shared/util';
 
@@ -23,8 +23,8 @@ const preloadedState = window.__PRELOADED_STATE__;
 /* eslint-enable no-underscore-dangle */
 
 const store = createStore(
-  combineReducers({ hello: helloReducer }),
-  { hello: Immutable.fromJS(preloadedState.hello) },
+  combineReducers({ boardgames: boardGamesReducer }),
+  { boardgames: Immutable.fromJS(preloadedState.boardgames) },
   composeEnhancers(applyMiddleware(thunkMiddleware)),
 );
 

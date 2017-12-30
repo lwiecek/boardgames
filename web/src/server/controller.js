@@ -1,15 +1,13 @@
 // @flow
 
+import { searchBoardGames } from '../shared/boardgames';
+
 export const homePage = () => null;
 
-export const helloPage = () => ({
-  hello: { message: 'Server-side preloaded message' },
-});
+export const allGamesPage = async () => {
+  return (await searchBoardGames('')).data;
+};
 
-export const helloAsyncPage = () => ({
-  hello: { messageAsync: 'Server-side preloaded message for async page' },
-});
-
-export const helloEndpoint = (num: number) => ({
-  serverMessage: `Hello from the server! (received ${num})`,
+export const gameDetailPage = () => ({
+  boardgame: { name: 'Gloomhaven', slug: 'gloomhaven', description: '...' },
 });

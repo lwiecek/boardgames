@@ -2,7 +2,7 @@
 
 import { connect } from 'react-redux';
 
-import { sayHelloAsync } from '../action/hello';
+import { getBoardGames } from '../action/get-board-games';
 import Button from '../component/button';
 
 const mapStateToProps = () => ({
@@ -10,7 +10,7 @@ const mapStateToProps = () => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  handleClick: () => { dispatch(sayHelloAsync(1234)); },
+  handleClick: () => { dispatch(getBoardGames()); },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Button);
