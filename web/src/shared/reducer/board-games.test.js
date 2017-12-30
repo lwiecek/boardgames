@@ -14,7 +14,7 @@ beforeEach(() => {
 });
 
 test('handle default', () => {
-  expect(boardGamesState.get('boardgames')).toEqual(Immutable.fromJS([]));
+  expect(boardGamesState.get('boardgames')).toEqual(undefined);
 });
 
 test('handle GET_BOARD_GAMES_ASYNC_REQUEST', () => {
@@ -32,5 +32,5 @@ test('handle GET_BOARD_GAMES_ASYNC_SUCCESS', () => {
 
 test('handle GET_BOARD_GAMES_ASYNC_FAILURE', () => {
   boardGamesState = boardGamesReducer(boardGamesState, getBoardGamesAsyncFailure());
-  expect(boardGamesState.get('boardgames')).toEqual([]);
+  expect(boardGamesState.get('boardgames')).toEqual(null);
 });

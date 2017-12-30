@@ -14,13 +14,15 @@ import { GRAPHQL_BOARD_GAMES_ROUTE } from '../routes';
 
 const mockStore = configureMockStore([thunkMiddleware]);
 
+const getInitialState = () => ({ boardgames: Immutable.fromJS({ boardgames: undefined }) });
+
 afterEach(() => {
   fetchMock.restore();
 });
 
 test('getBoardGamesAsync success', async () => {
   fetchMock.post(GRAPHQL_BOARD_GAMES_ROUTE, Immutable.fromJS({ data: { boardgames: [{ name: 'Gloomhaven' }] } }));
-  const store = mockStore();
+  const store = mockStore(getInitialState());
   await store.dispatch(getBoardGamesAsync());
   expect(store.getActions()).toEqual([
     getBoardGamesAsyncRequest(),
@@ -30,7 +32,7 @@ test('getBoardGamesAsync success', async () => {
 
 test('getBoardGamesAsync 404', async () => {
   fetchMock.get('/404_not_found', 404);
-  const store = mockStore();
+  const store = mockStore(getInitialState());
   await store.dispatch(getBoardGamesAsync());
   expect(store.getActions()).toEqual([
     getBoardGamesAsyncRequest(),
@@ -40,7 +42,7 @@ test('getBoardGamesAsync 404', async () => {
 
 test('getBoardGamesAsync data error', async () => {
   fetchMock.get(GRAPHQL_BOARD_GAMES_ROUTE, Immutable.fromJS({}));
-  const store = mockStore();
+  const store = mockStore(getInitialState());
   await store.dispatch(getBoardGamesAsync());
   expect(store.getActions()).toEqual([
     getBoardGamesAsyncRequest(),
