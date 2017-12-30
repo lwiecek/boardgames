@@ -21,6 +21,7 @@ export const getBoardGamesAsync = () => async (dispatch: Function) => {
     const json = await searchBoardGames('');
     dispatch(getBoardGamesAsyncSuccess(Immutable.fromJS(json)));
   } catch (err) {
+    console.error(err);
     dispatch(getBoardGamesAsyncFailure());
   }
 };

@@ -20,7 +20,13 @@ export default (app: Object) => {
   });
 
   app.get(ALL_GAMES_ROUTE, async (req, res) => {
-    const data = await allGamesPage();
+    let data;
+    try {
+      data = await allGamesPage();
+    } catch (err) {
+      console.error(err);
+      data = { boardgames: null };
+    }
     res.send(renderApp(req.url, data));
   });
 

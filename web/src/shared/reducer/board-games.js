@@ -18,7 +18,7 @@ const boardGamesReducer = (state: Immut = initialState, action: { type: string, 
     case GET_BOARD_GAMES_ASYNC_SUCCESS:
       return state.set('boardgames', action.payload.get('boardgames'));
     case GET_BOARD_GAMES_ASYNC_FAILURE:
-      return state.set('boardgames', []);
+      return state.set('boardgames', null);
     default:
       return state;
   }
