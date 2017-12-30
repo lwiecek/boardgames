@@ -17,7 +17,7 @@ export const getBoardGamesAsyncFailure = createAction(GET_BOARD_GAMES_ASYNC_FAIL
 
 export const getBoardGamesAsync = () => async (dispatch: Function, getState: Function) => {
   const boardgames = getState().boardgames.get('boardgames');
-  if (boardgames && boardgames.size > 0) {
+  if ((boardgames === null) || (boardgames && boardgames.size > 0)) {
     return;
   }
   dispatch(getBoardGamesAsyncRequest());
