@@ -9,7 +9,7 @@ import {
   GET_BOARD_GAMES_ASYNC_FAILURE,
 } from '../action/get-board-games';
 
-const initialState = Immutable.fromJS({ boardgames: [] });
+const initialState = Immutable.fromJS({ boardgames: undefined });
 
 const boardGamesReducer = (state: Immut = initialState, action: { type: string, payload: any }) => {
   switch (action.type) {

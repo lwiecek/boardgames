@@ -15,7 +15,11 @@ export const getBoardGamesAsyncRequest = createAction(GET_BOARD_GAMES_ASYNC_REQU
 export const getBoardGamesAsyncSuccess = createAction(GET_BOARD_GAMES_ASYNC_SUCCESS);
 export const getBoardGamesAsyncFailure = createAction(GET_BOARD_GAMES_ASYNC_FAILURE);
 
-export const getBoardGamesAsync = () => async (dispatch: Function) => {
+export const getBoardGamesAsync = () => async (dispatch: Function, getState: Function) => {
+  const boardgames = getState().boardgames.get('boardgames');
+  if (boardgames && boardgames.size > 0) {
+    return;
+  }
   dispatch(getBoardGamesAsyncRequest());
   try {
     const json = await searchBoardGames('');
