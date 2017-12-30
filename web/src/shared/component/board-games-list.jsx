@@ -3,15 +3,19 @@
 import React from 'react';
 
 type Props = {
-  game: Array<string>,
+  games: any,
 };
 
 const BoardGamesList = ({ games }: Props) => {
-  const listItems = games.map((game) =>
-    <li>{game.name} <b>{game.bgg_rating}</b></li>
-  );
+  if (games === undefined) {
+    return <div>LOADING</div>;
+  }
+  const listItems = games.map(game => <li key={game.get('slug')}>{game.get('name')} <b>{game.get('bgg_rating')}</b></li>);
   return (
-    <ul>{listItems}</ul>
+    <div>
+      <h2>Board Games:</h2>
+      <ul>{listItems}</ul>
+    </div>
   );
 };
 

@@ -3,8 +3,6 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 
-import HelloAsyncButton from '../../container/hello-async-button';
-import MessageAsync from '../../container/message-async';
 import Title from '../title';
 import Nav from '../nav';
 
@@ -21,8 +19,6 @@ const BoardGameDetailPage = () => (
     />
     <Title>{title}</Title>
     <Nav />
-    <MessageAsync />
-    <HelloAsyncButton />
   </div>
 );
 

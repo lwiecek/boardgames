@@ -3,9 +3,10 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 
-const title = 'Page Not Found';
 import Title from '../title';
 import Nav from '../nav';
+
+const title = 'Page Not Found';
 
 const NotFoundPage = () => (
   <div>

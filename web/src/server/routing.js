@@ -21,8 +21,6 @@ export default (app: Object) => {
 
   app.get(ALL_GAMES_ROUTE, async (req, res) => {
     const data = await allGamesPage();
-    // console.log('DUPA');
-    // console.log(data);
     res.send(renderApp(req.url, data));
   });
 

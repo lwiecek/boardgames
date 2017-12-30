@@ -2,7 +2,8 @@
 
 import { GRAPHQL_BOARD_GAMES_ROUTE } from './routes';
 
-export const searchBoardGames = async (term) => {
+// eslint-disable-next-line import/prefer-default-export
+export const searchBoardGames = async (term: string) => {
   const query = `query Query($search: String) {
     boardgames(search: $search) {
       slug
@@ -30,20 +31,19 @@ export const searchBoardGames = async (term) => {
     method: 'POST',
     headers: {
       Accept: 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       query,
-      variables: { search: term }
+      variables: { search: term },
     }),
   });
   if (!res.ok) {
-    console.error(await res.json());
     throw Error(res.statusText);
   }
   const json = await res.json();
   if (!json.data) {
     throw Error('No data received');
   }
-  return json;
-}
+  return json.data;
+};

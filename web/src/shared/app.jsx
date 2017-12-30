@@ -4,8 +4,8 @@ import React from 'react';
 import { Switch } from 'react-router';
 import { Route } from 'react-router-dom';
 import Helmet from 'react-helmet';
+
 import { APP_NAME } from './config';
-import Nav from './component/nav';
 import HomePage from './component/page/home';
 import BoardGamesPage from './component/page/board-games';
 import BoardGameDetailPage from './component/page/board-game-detail';

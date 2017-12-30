@@ -5,6 +5,7 @@ import Helmet from 'react-helmet';
 
 import Title from '../title';
 import Nav from '../nav';
+import BoardGamesList from '../../container/board-games-list';
 
 const title = 'All Games';
 
@@ -19,6 +20,7 @@ const BoardGamesPage = () => (
     />
     <Title>{title}</Title>
     <Nav />
+    <BoardGamesList />
   </div>
 );
 
