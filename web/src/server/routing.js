@@ -2,27 +2,21 @@
 
 import {
   homePage,
-  allGamesPage,
   gameDetailPage,
 } from './controller';
 
 import {
   HOME_PAGE_ROUTE,
-  ALL_GAMES_ROUTE,
   GAME_DETAIL_PAGE_ROUTE,
 } from '../shared/routes';
 
 import renderApp from './render-app';
 
 export default (app: Object) => {
-  app.get(HOME_PAGE_ROUTE, (req, res) => {
-    res.send(renderApp(req.url, homePage()));
-  });
-
-  app.get(ALL_GAMES_ROUTE, async (req, res) => {
+  app.get(HOME_PAGE_ROUTE, async (req, res) => {
     let data;
     try {
-      data = await allGamesPage();
+      data = await homePage();
     } catch (err) {
       console.error(err);
       data = { boardgames: null };

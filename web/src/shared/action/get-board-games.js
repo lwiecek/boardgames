@@ -15,17 +15,19 @@ export const getBoardGamesAsyncRequest = createAction(GET_BOARD_GAMES_ASYNC_REQU
 export const getBoardGamesAsyncSuccess = createAction(GET_BOARD_GAMES_ASYNC_SUCCESS);
 export const getBoardGamesAsyncFailure = createAction(GET_BOARD_GAMES_ASYNC_FAILURE);
 
-export const getBoardGamesAsync = () => async (dispatch: Function, getState: Function) => {
-  const boardgames = getState().boardgames.get('boardgames');
-  if ((boardgames === null) || (boardgames && boardgames.size > 0)) {
-    return;
-  }
-  dispatch(getBoardGamesAsyncRequest());
-  try {
-    const json = await searchBoardGames('');
-    dispatch(getBoardGamesAsyncSuccess(Immutable.fromJS(json)));
-  } catch (err) {
-    console.error(err);
-    dispatch(getBoardGamesAsyncFailure());
-  }
-};
+export const getBoardGamesAsync = (params: any) =>
+  async (dispatch: Function, getState: Function) => {
+    const boardgames = getState().boardgames.get('boardgames');
+    if ((boardgames === null) || (boardgames && boardgames.size > 0)) {
+      return;
+    }
+    dispatch(getBoardGamesAsyncRequest());
+    const search = params && params.search ? params.search : '';
+    try {
+      const json = await searchBoardGames(search);
+      dispatch(getBoardGamesAsyncSuccess(Immutable.fromJS(json)));
+    } catch (err) {
+      console.error(err);
+      dispatch(getBoardGamesAsyncFailure());
+    }
+  };
